@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Badge, ButtonLink, Card, EmptyState, Spinner, StatusPill } from "@/components/ui";
+import { createClient } from "@/lib/supabase/client";
+import { Badge, Button, ButtonLink, Card, EmptyState, ErrorText, Field, Input, Spinner, StatusPill } from "@/components/ui";
 import Doodles, { HandUnderline } from "@/components/Doodles";
 import { useSupabaseQuery, must } from "@/lib/hooks";
 import { MOTO_SELECT, motoLabel } from "@/lib/moto";
@@ -38,7 +40,8 @@ interface UrgentEntry {
 }
 
 export default function AccueilPage() {
-  const { data, loading } = useSupabaseQuery<DashboardData>(async (sb) => {
+  const [editHours, setEditHours] = useState(false);
+  const { data, loading, reload } = useSupabaseQuery<DashboardData>(async (sb) => {
     const [profile, motos, sessions, types, schedules, records, reminders, setups, terrains] = await Promise.all([
       sb.from("profiles").select("display_name").single(),
       sb.from("motorcycles").select(MOTO_SELECT).order("is_primary", { ascending: false }).order("created_at"),
@@ -84,8 +87,16 @@ export default function AccueilPage() {
   const urgent: UrgentEntry[] = [];
 
   // Entretiens surveillés (alertes actives uniquement)
+  // La vidange est la seule opération qui déclenche un bandeau d'alerte en haut de l'accueil
+  let vidangeAlert: { moto: MotorcycleWithModel; hoursRemaining: number | null; status: DueStatus } | null = null;
   for (const moto of activeMotos) {
     const items = buildMaintenanceOverview(moto, moto.motorcycle_models.stroke, data.types, data.schedules, data.records, today);
+    const vidange = items.find(
+      (i) => i.alertEnabled && i.type.name === "Vidange moteur" && (i.due.status === "overdue" || i.due.status === "soon"),
+    );
+    if (vidange && (!vidangeAlert || (vidange.due.status === "overdue" && vidangeAlert.status !== "overdue"))) {
+      vidangeAlert = { moto, hoursRemaining: vidange.due.hoursRemaining, status: vidange.due.status };
+    }
     for (const item of urgentItems(items)) {
       urgent.push({
         key: `m-${moto.id}-${item.type.id}`,
@@ -139,6 +150,35 @@ export default function AccueilPage() {
       <Doodles />
       <Greeting name={firstName} />
 
+      {/* Bandeau vidange — seule alerte affichée en bandeau */}
+      {vidangeAlert && (
+        <Link
+          href={`/entretiens/nouveau?moto=${vidangeAlert.moto.id}&type=${data.types.find((t) => t.name === "Vidange moteur")?.id ?? ""}`}
+          className={`mb-3 flex items-center gap-3 rounded-card border px-4 py-3 shadow-[var(--shadow-card)] ${
+            vidangeAlert.status === "overdue"
+              ? "border-danger/25 bg-danger/10"
+              : "border-warn/25 bg-warn/10"
+          }`}
+        >
+          <span className="text-2xl" aria-hidden>🛢️</span>
+          <div className="min-w-0 flex-1">
+            <p className={`font-extrabold ${vidangeAlert.status === "overdue" ? "text-danger" : "text-warn"}`}>
+              {vidangeAlert.status === "overdue" ? "Vidange dépassée !" : "Vidange bientôt à faire"}
+            </p>
+            <p className="truncate text-xs text-ink-dim">
+              {motoLabel(vidangeAlert.moto)}
+              {vidangeAlert.hoursRemaining !== null &&
+                (vidangeAlert.hoursRemaining >= 0
+                  ? ` • reste ${formatHours(vidangeAlert.hoursRemaining)}`
+                  : ` • dépassée de ${formatHours(-vidangeAlert.hoursRemaining)}`)}
+            </p>
+          </div>
+          <span className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold text-white ${vidangeAlert.status === "overdue" ? "bg-danger" : "bg-warn"}`}>
+            Enregistrer
+          </span>
+        </Link>
+      )}
+
       {/* Moto principale — carte héro violette */}
       <Link href={`/garage/${primary.id}`} className="block">
         <div className="relative overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-violet to-violet-strong p-5 text-white shadow-[var(--shadow-float)]">
@@ -148,10 +188,21 @@ export default function AccueilPage() {
           <p className="mt-1 text-xl font-extrabold tracking-tight">{motoLabel(primary)}</p>
           <div className="mt-4 flex items-end justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-[4.5rem] w-[4.5rem] flex-col items-center justify-center rounded-full border-[3px] border-white/30 bg-white/10">
+              <button
+                type="button"
+                aria-label="Modifier le compteur d'heures"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setEditHours(true);
+                }}
+                className="relative flex h-[4.5rem] w-[4.5rem] flex-col items-center justify-center rounded-full border-[3px] border-white/30 bg-white/10 active:scale-95"
+              >
                 <span className="text-lg font-black leading-none">{formatHours(primary.current_hours)}</span>
                 <span className="text-[9px] text-white/60">compteur</span>
-              </div>
+                <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-accent text-white shadow" aria-hidden>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" /></svg>
+                </span>
+              </button>
               {lastSession && (
                 <div className="flex h-[4.5rem] w-[4.5rem] flex-col items-center justify-center rounded-full border-[3px] border-accent/70 bg-white/10">
                   <span className="text-lg font-black leading-none">{formatMinutes(lastSession.duration_minutes)}</span>
@@ -247,6 +298,72 @@ export default function AccueilPage() {
           </Link>
         )}
       </section>
+
+      {editHours && (
+        <HoursEditor
+          moto={primary}
+          onClose={() => setEditHours(false)}
+          onSaved={() => {
+            setEditHours(false);
+            reload();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+/** Modification rapide du compteur d'heures depuis l'accueil */
+function HoursEditor({ moto, onClose, onSaved }: { moto: MotorcycleWithModel; onClose: () => void; onSaved: () => void }) {
+  const total = Math.round(moto.current_hours * 60);
+  const [h, setH] = useState(String(Math.floor(total / 60)));
+  const [m, setM] = useState(String(total % 60));
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function save() {
+    setError("");
+    const hours = (parseInt(h) || 0) + (parseInt(m) || 0) / 60;
+    if (hours < 0 || (parseInt(m) || 0) > 59) {
+      setError("Valeur invalide (minutes entre 0 et 59).");
+      return;
+    }
+    setBusy(true);
+    const supabase = createClient();
+    const { error: updateError } = await supabase
+      .from("motorcycles")
+      .update({ current_hours: hours })
+      .eq("id", moto.id);
+    setBusy(false);
+    if (updateError) {
+      setError("Enregistrement impossible. Réessayez.");
+      return;
+    }
+    onSaved();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 backdrop-blur-[2px] sm:items-center" role="dialog" aria-modal="true" aria-label="Modifier le compteur d'heures">
+      <Card className="w-full max-w-sm shadow-[var(--shadow-float)]">
+        <p className="text-lg font-extrabold">Compteur d'heures</p>
+        <p className="mt-0.5 text-sm text-ink-dim">{motoLabel(moto)}</p>
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <Field label="Heures">
+            <Input type="number" min={0} inputMode="numeric" value={h} onChange={(e) => setH(e.target.value)} autoFocus />
+          </Field>
+          <Field label="Minutes">
+            <Input type="number" min={0} max={59} inputMode="numeric" value={m} onChange={(e) => setM(e.target.value)} />
+          </Field>
+        </div>
+        <p className="mt-2 text-xs text-ink-dim">
+          À utiliser pour recaler le compteur sur la valeur réelle de l'horamètre. Les sessions continuent de s'ajouter automatiquement.
+        </p>
+        <div className="mt-4 flex flex-col gap-2">
+          <ErrorText>{error}</ErrorText>
+          <Button onClick={save} disabled={busy}>{busy ? "Enregistrement…" : "Enregistrer"}</Button>
+          <Button variant="secondary" onClick={onClose}>Annuler</Button>
+        </div>
+      </Card>
     </div>
   );
 }
