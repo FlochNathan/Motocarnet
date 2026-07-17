@@ -3,10 +3,10 @@ import "./globals.css";
 import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
-  title: { default: "MotoCarnet", template: "%s — MotoCarnet" },
-  description: "Carnet numérique du pilote motocross : garage, heures moteur, entretiens et réglages de suspensions.",
+  title: { default: "PitLog", template: "%s — PitLog" },
+  description: "Carnet numérique du pilote motocross : garage, heures moteur, entretiens, réglages de suspensions et finances.",
   manifest: "/manifest.webmanifest",
-  appleWebApp: { capable: true, title: "MotoCarnet", statusBarStyle: "black-translucent" },
+  appleWebApp: { capable: true, title: "PitLog", statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {

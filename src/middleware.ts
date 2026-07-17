@@ -14,13 +14,13 @@ function supabaseNotConfigured(): boolean {
 
 const SETUP_PAGE = `<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MotoCarnet — Configuration requise</title>
+<title>PitLog — Configuration requise</title>
 <style>body{font-family:system-ui,sans-serif;background:#0c0a09;color:#fafaf9;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:1rem}
 main{max-width:34rem;background:#1c1917;border:1px solid #3f3c39;border-radius:1rem;padding:2rem}
 h1{color:#f97316;font-size:1.4rem}code{background:#292524;padding:.15rem .4rem;border-radius:.35rem}
 ol{line-height:1.9}a{color:#f97316}</style></head>
 <body><main>
-<h1>🏍️ MotoCarnet — Supabase n'est pas encore configuré</h1>
+<h1>🏍️ PitLog — Supabase n'est pas encore configuré</h1>
 <p>L'application a besoin des clés de votre projet Supabase pour démarrer :</p>
 <ol>
 <li>Créez un projet gratuit sur <a href="https://supabase.com">supabase.com</a></li>
@@ -60,7 +60,6 @@ export async function middleware(request: NextRequest) {
     },
   );
 
-  // Rafraîchit la session si nécessaire (obligatoire avec @supabase/ssr)
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -83,6 +82,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Tout sauf les fichiers statiques
   matcher: ["/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|sw.js|icons|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };

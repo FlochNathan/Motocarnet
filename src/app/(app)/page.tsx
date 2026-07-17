@@ -256,9 +256,8 @@ function Greeting({ name }: { name: string }) {
   return (
     <header className="pb-5 pt-3">
       <div className="mb-4 flex items-center justify-between">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-label="MotoCarnet">
-          <circle cx="5.5" cy="17" r="3" /><circle cx="18.5" cy="17" r="3" /><path d="M5.5 17l3-7h4l3 7M12.5 10l2-4h3" /><path d="M9 6h4" />
-        </svg>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/images/logo-banner.png" alt="PitLog" className="h-10 w-auto rounded-xl" />
         <Link
           href="/profil"
           aria-label="Mon profil"

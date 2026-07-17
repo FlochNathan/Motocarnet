@@ -1,4 +1,4 @@
-# MotoCarnet 🏍️
+# PitLog 🏍️
 
 Carnet numérique du pilote motocross, **pensé pour le téléphone** (paddock, bord de piste) :
 
