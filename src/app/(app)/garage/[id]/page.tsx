@@ -122,11 +122,12 @@ export default function FicheMotoPage({ params }: { params: Promise<{ id: string
         <ButtonLink href={`/sessions/nouvelle?moto=${moto.id}`} size="md">＋ Session</ButtonLink>
         <ButtonLink href={`/entretiens/nouveau?moto=${moto.id}`} variant="secondary" size="md">🔧 Entretien</ButtonLink>
       </div>
-      <div className="mt-2 grid grid-cols-3 gap-2">
-        <ButtonLink href={`/garage/${moto.id}/historique`} variant="secondary" size="sm">Historique</ButtonLink>
-        <ButtonLink href={`/garage/${moto.id}/echeances`} variant="secondary" size="sm">Échéances</ButtonLink>
-        <button onClick={exportCSV} className="min-h-11 rounded-2xl border border-border bg-surface-2 px-4 text-sm font-semibold">
-          Export CSV
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <ButtonLink href={`/garage/${moto.id}/historique`} variant="secondary" size="sm">🕓 Historique</ButtonLink>
+        <ButtonLink href={`/garage/${moto.id}/echeances`} variant="secondary" size="sm">📅 Échéances</ButtonLink>
+        <ButtonLink href={`/garage/${moto.id}/fiche-technique`} variant="secondary" size="sm">📖 Fiche technique</ButtonLink>
+        <button onClick={exportCSV} className="min-h-11 rounded-2xl border border-border bg-surface px-4 text-sm font-semibold shadow-[var(--shadow-card)]">
+          ⬇️ Export CSV
         </button>
       </div>
 

@@ -196,6 +196,41 @@ export interface SetupRecommendation {
   active: boolean;
 }
 
+export interface TorqueSpec {
+  name: string;
+  value: string;
+}
+
+export interface SuggestedInterval {
+  type_name: string;
+  hours: number | null;
+  months: number | null;
+}
+
+export interface ModelSpec {
+  id: number;
+  model_id: number;
+  year_from: number;
+  year_to: number;
+  oil_qty: string | null;
+  oil_type: string | null;
+  coolant_qty: string | null;
+  premix_ratio: string | null;
+  valve_intake: string | null;
+  valve_exhaust: string | null;
+  spark_plug: string | null;
+  fork_info: string | null;
+  fork_clicks: string | null;
+  shock_clicks: string | null;
+  sag_recommended: string | null;
+  torques: TorqueSpec[];
+  suggested_intervals: SuggestedInterval[];
+  notes: string | null;
+  verified: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Part {
   id: string;
   user_id: string;
