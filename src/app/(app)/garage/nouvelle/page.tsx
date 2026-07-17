@@ -116,26 +116,8 @@ export default function NouvelleMotoPage() {
         .single();
       if (insertError) throw new Error(insertError.message);
 
-      // Pré-remplit les échéances avec les fréquences par défaut du référentiel
-      const { data: types } = await supabase
-        .from("maintenance_types")
-        .select("*")
-        .eq("active", true);
-      const schedules = (types ?? [])
-        .filter(
-          (t) =>
-            (t.applies_to_stroke === null || t.applies_to_stroke === selectedModel.stroke) &&
-            (t.default_interval_hours !== null || t.default_interval_months !== null),
-        )
-        .map((t) => ({
-          user_id: userId,
-          motorcycle_id: inserted.id,
-          maintenance_type_id: t.id,
-          interval_hours: t.default_interval_hours,
-          interval_months: t.default_interval_months,
-        }));
-      if (schedules.length > 0) await supabase.from("maintenance_schedules").insert(schedules);
-
+      // Aucune échéance pré-remplie : l'utilisateur définit lui-même
+      // ce qu'il veut suivre depuis l'écran « Échéances et alertes ».
       router.push(`/garage/${inserted.id}`);
       router.refresh();
     } catch (e) {
