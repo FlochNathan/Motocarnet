@@ -140,53 +140,57 @@ export default function EcheancesPage({ params }: { params: Promise<{ id: string
                 const tracked = v && (v.hours.trim() !== "" || v.months.trim() !== "");
                 return (
                   <div key={t.id} className="px-4 py-3">
-                    <div className="flex items-center gap-2">
+                    {/* Ligne 1 : nom + cloche */}
+                    <div className="flex items-center justify-between gap-2">
                       <p className="min-w-0 flex-1 text-sm font-semibold">{t.name}</p>
-                      <div className="flex items-center gap-1">
-                        <Input
-                          type="number" min={0} step="0.5" inputMode="decimal"
-                          value={v?.hours ?? ""}
-                          onChange={(e) => setRow(t.id, { hours: e.target.value })}
-                          className="w-16 text-center" aria-label={`${t.name} : fréquence en heures`} placeholder="—"
-                        />
-                        <span className="text-xs text-ink-dim">h</span>
-                        <Input
-                          type="number" min={0} inputMode="numeric"
-                          value={v?.months ?? ""}
-                          onChange={(e) => setRow(t.id, { months: e.target.value })}
-                          className="w-14 text-center" aria-label={`${t.name} : fréquence en mois`} placeholder="—"
-                        />
-                        <span className="text-xs text-ink-dim">mois</span>
-                        <button
-                          type="button"
-                          role="switch"
-                          aria-checked={v?.alertEnabled ?? true}
-                          aria-label={`${t.name} : alerte ${v?.alertEnabled ? "activée" : "coupée"}`}
-                          disabled={!tracked}
-                          onClick={() => setRow(t.id, { alertEnabled: !(v?.alertEnabled ?? true) })}
-                          className={`ml-1 flex h-10 w-10 items-center justify-center rounded-full text-lg disabled:opacity-30 ${
-                            v?.alertEnabled ?? true ? "bg-accent-soft" : "bg-surface-2 grayscale opacity-60"
-                          }`}
-                        >
-                          {v?.alertEnabled ?? true ? "🔔" : "🔕"}
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={v?.alertEnabled ?? true}
+                        aria-label={`${t.name} : alerte ${v?.alertEnabled ? "activée" : "coupée"}`}
+                        disabled={!tracked}
+                        onClick={() => setRow(t.id, { alertEnabled: !(v?.alertEnabled ?? true) })}
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg disabled:opacity-30 ${
+                          v?.alertEnabled ?? true ? "bg-accent-soft" : "bg-surface-2 grayscale opacity-60"
+                        }`}
+                      >
+                        {v?.alertEnabled ?? true ? "🔔" : "🔕"}
+                      </button>
                     </div>
+                    {/* Ligne 2 : fréquence */}
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1.5 text-xs font-medium text-ink-dim">
+                      <span className="w-14">Tous les</span>
+                      <Input
+                        type="number" min={0} step="0.5" inputMode="decimal"
+                        value={v?.hours ?? ""}
+                        onChange={(e) => setRow(t.id, { hours: e.target.value })}
+                        className="!min-h-10 w-16 text-center" aria-label={`${t.name} : fréquence en heures`} placeholder="—"
+                      />
+                      <span>h</span>
+                      <Input
+                        type="number" min={0} inputMode="numeric"
+                        value={v?.months ?? ""}
+                        onChange={(e) => setRow(t.id, { months: e.target.value })}
+                        className="!min-h-10 w-14 text-center" aria-label={`${t.name} : fréquence en mois`} placeholder="—"
+                      />
+                      <span>mois</span>
+                    </div>
+                    {/* Ligne 3 : seuil d'alerte personnalisé */}
                     {tracked && v?.alertEnabled && (
-                      <div className="mt-2 flex items-center justify-end gap-1 text-xs text-ink-dim">
-                        <span className="mr-1">Alerter</span>
+                      <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1.5 text-xs font-medium text-ink-dim">
+                        <span className="w-14">Alerter</span>
                         <Input
                           type="number" min={0} step="0.5" inputMode="decimal"
                           value={v.beforeHours}
                           onChange={(e) => setRow(t.id, { beforeHours: e.target.value })}
-                          className="!min-h-9 w-16 text-center" aria-label={`${t.name} : alerter X heures avant`} placeholder="auto"
+                          className="!min-h-10 w-16 text-center" aria-label={`${t.name} : alerter X heures avant`} placeholder="auto"
                         />
                         <span>h avant</span>
                         <Input
                           type="number" min={0} step="0.5" inputMode="decimal"
                           value={v.beforeMonths}
                           onChange={(e) => setRow(t.id, { beforeMonths: e.target.value })}
-                          className="!min-h-9 w-14 text-center" aria-label={`${t.name} : alerter X mois avant`} placeholder="auto"
+                          className="!min-h-10 w-14 text-center" aria-label={`${t.name} : alerter X mois avant`} placeholder="auto"
                         />
                         <span>mois avant</span>
                       </div>
