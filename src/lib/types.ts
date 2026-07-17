@@ -215,7 +215,7 @@ export interface Expense {
   motorcycle_id: string;
   maintenance_record_id: string | null;
   expense_date: string;
-  category: "entretien" | "piece" | "essence" | "equipement" | "inscription" | "autre";
+  category: "entretien" | "piece" | "essence" | "transport" | "equipement" | "inscription" | "autre";
   label: string;
   amount: number;
   created_at: string;

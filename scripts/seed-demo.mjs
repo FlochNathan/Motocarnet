@@ -151,6 +151,24 @@ async function main() {
     }));
   await supabase.from("maintenance_schedules").insert(schedules);
 
+  // 5 bis. Dépenses de saison (transport, essence, équipement, inscriptions)
+  const extraExpenses = [
+    { d: 120, cat: "transport", label: "Gasoil + péage Loon-Plage", amount: 48.6 },
+    { d: 120, cat: "inscription", label: "Entrée terrain Loon-Plage", amount: 20 },
+    { d: 90, cat: "essence", label: "Mélange + essence 98", amount: 14.5 },
+    { d: 90, cat: "transport", label: "Gasoil MX Park Romagné", amount: 22 },
+    { d: 60, cat: "equipement", label: "Gants + lunettes", amount: 74.9 },
+    { d: 30, cat: "piece", label: "Kit plastiques", amount: 89 },
+    { d: 14, cat: "inscription", label: "Entrée terrain + licence journée", amount: 35 },
+    { d: 7, cat: "essence", label: "Essence 98", amount: 12.3 },
+  ];
+  for (const e of extraExpenses) {
+    await supabase.from("expenses").insert({
+      user_id: userId, motorcycle_id: moto1.id, expense_date: daysAgo(e.d),
+      category: e.cat, label: e.label, amount: e.amount,
+    });
+  }
+
   // 6 bis. Rappel libre d'exemple
   await supabase.from("custom_reminders").insert({
     user_id: userId, motorcycle_id: moto1.id,

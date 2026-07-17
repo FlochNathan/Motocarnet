@@ -60,6 +60,35 @@ export function averageLifeHours(records: MaintenanceRecord[], maintenanceTypeId
   return gaps.reduce((s, g) => s + g, 0) / gaps.length;
 }
 
+/** Somme de valeurs datées par mois civil d'une année (12 lignes, janv. → déc.) */
+export function sumPerMonthOfYear(
+  entries: { date: string; value: number }[],
+  year: number,
+): { month: string; total: number }[] {
+  const rows = Array.from({ length: 12 }, (_, i) => ({
+    month: `${year}-${String(i + 1).padStart(2, "0")}`,
+    total: 0,
+  }));
+  for (const e of entries) {
+    if (!e.date.startsWith(`${year}-`)) continue;
+    const m = Number(e.date.slice(5, 7));
+    if (m >= 1 && m <= 12) rows[m - 1].total += e.value;
+  }
+  return rows;
+}
+
+/** Total des dépenses par catégorie, dans l'ordre fixe fourni (pour le donut) */
+export function expensesPerCategory(
+  expenses: Expense[],
+  categoryOrder: readonly string[],
+): { category: string; total: number }[] {
+  const map = new Map<string, number>();
+  for (const e of expenses) map.set(e.category, (map.get(e.category) ?? 0) + e.amount);
+  return categoryOrder
+    .map((category) => ({ category, total: map.get(category) ?? 0 }))
+    .filter((r) => r.total > 0);
+}
+
 /** Nombre d'entretiens par type, trié décroissant */
 export function maintenanceFrequency(records: MaintenanceRecord[]): { typeId: number; count: number }[] {
   const map = new Map<number, number>();

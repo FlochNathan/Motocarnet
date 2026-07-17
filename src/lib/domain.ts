@@ -60,11 +60,16 @@ export const RECO_WARNING =
   "Modifiez un seul réglage à la fois, par petites étapes de 1 à 2 clics, puis testez la moto. " +
   "Vérifiez également les recommandations du constructeur ou consultez un professionnel des suspensions.";
 
+// Catégories de dépenses — l'ordre ET les couleurs sont fixes : la palette a été
+// validée pour le daltonisme dans cet ordre d'adjacence (donut, légendes).
 export const EXPENSE_CATEGORIES = [
-  { value: "entretien", label: "Entretien" },
-  { value: "piece", label: "Pièce" },
-  { value: "essence", label: "Essence" },
-  { value: "equipement", label: "Équipement" },
-  { value: "inscription", label: "Inscription" },
-  { value: "autre", label: "Autre" },
+  { value: "entretien", label: "Entretien", icon: "🔧", color: "#d96230" },
+  { value: "piece", label: "Pièces", icon: "⚙️", color: "#8b6fc4" },
+  { value: "essence", label: "Essence", icon: "⛽", color: "#2f9e68" },
+  { value: "transport", label: "Transport", icon: "🚐", color: "#3e86c0" },
+  { value: "equipement", label: "Équipement", icon: "🧤", color: "#b08600" },
+  { value: "inscription", label: "Inscriptions", icon: "🎟️", color: "#c75884" },
+  { value: "autre", label: "Autre", icon: "📦", color: "#0aa3ab" },
 ] as const;
+
+export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number]["value"];

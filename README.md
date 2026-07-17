@@ -32,6 +32,7 @@ npm install
    - `supabase/migrations/0001_schema.sql` (tables, contraintes, triggers)
    - `supabase/migrations/0002_rls.sql` (sécurité RLS + bucket photos)
    - `supabase/migrations/0003_alertes.sql` (alertes personnalisables + rappels libres)
+   - `supabase/migrations/0004_finances.sql` (catégories de dépenses de la section Finances)
    - `supabase/seed.sql` (marques, modèles, types d'entretien, terrains, recommandations)
 3. Dans **Authentication → URL Configuration**, ajoutez `http://localhost:3000/auth/callback` aux Redirect URLs.
 
