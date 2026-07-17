@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+/* Mode sombre piloté par la classe .dark sur <html> (voir ThemeScript) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Palette MotoCarnet — crème chaleureux, corail motocross, violet profond */
+  --color-accent: #ec6c3f;
+  --color-accent-strong: #de5a2c;
+  --color-accent-soft: var(--mc-accent-soft);
+  --color-accent-contrast: #ffffff;
+
+  /* Accent secondaire : violet (cartes héro, bouton flottant) */
+  --color-violet: #8b6fc4;
+  --color-violet-strong: #6d51a6;
+  --color-violet-deep: #3b2a63;
+
+  --color-bg: var(--mc-bg);
+  --color-surface: var(--mc-surface);
+  --color-surface-2: var(--mc-surface-2);
+  --color-border: var(--mc-border);
+  --color-ink: var(--mc-ink);
+  --color-ink-dim: var(--mc-ink-dim);
+
+  --color-ok: #16a34a;
+  --color-warn: #d97706;
+  --color-danger: #dc2626;
+
+  --radius-card: 1.5rem;
+  --radius-field: 1rem;
+
+  --shadow-card: 0 2px 6px rgb(120 72 45 / 0.05), 0 6px 20px rgb(120 72 45 / 0.06);
+  --shadow-float: 0 6px 16px rgb(80 48 30 / 0.10), 0 16px 40px rgb(80 48 30 / 0.12);
+  --shadow-btn: 0 2px 4px rgb(236 108 63 / 0.30), 0 6px 16px rgb(236 108 63 / 0.28);
+  --shadow-fab: 0 4px 10px rgb(59 42 99 / 0.35), 0 10px 26px rgb(59 42 99 / 0.30);
+}
+
+:root {
+  /* Thème clair (par défaut) : crème pêche, cartes blanches, encre brun foncé */
+  --mc-bg: #fdf1ea;
+  --mc-surface: #fffdfb;
+  --mc-surface-2: #f9e7dd;
+  --mc-border: #f1ddd0;
+  --mc-ink: #362c28;
+  --mc-ink-dim: #94807a;
+  --mc-accent-soft: #fce4d8;
+  color-scheme: light;
+}
+
+.dark {
+  /* Thème sombre : brun chaud profond, ambiance paddock au coucher du soleil */
+  --mc-bg: #171210;
+  --mc-surface: #221c18;
+  --mc-surface-2: #2e2620;
+  --mc-border: #3d332c;
+  --mc-ink: #f7f1ed;
+  --mc-ink-dim: #a5968e;
+  --mc-accent-soft: #3a2a1f;
+  color-scheme: dark;
+}
+
+.dark body {
+  --tw-shadow-color: transparent;
+}
+
+html {
+  background: var(--mc-bg);
+}
+
+body {
+  background: var(--mc-bg);
+  color: var(--mc-ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.011em;
+  /* Réserve la place de la barre de navigation inférieure + zone iPhone */
+  --bottom-nav-height: 4.75rem;
+}
+
+h1, h2, h3 {
+  letter-spacing: -0.025em;
+}
+
+/* Curseurs (sliders de ressenti) assez gros pour être utilisés avec des gants */
+input[type="range"] {
+  accent-color: var(--color-accent);
+  height: 2.75rem;
+  width: 100%;
+}
+
+/* Champs date/heure natifs lisibles en sombre */
+input::-webkit-calendar-picker-indicator {
+  filter: var(--picker-filter, none);
+  opacity: 0.6;
+}
+.dark input::-webkit-calendar-picker-indicator {
+  --picker-filter: invert(1);
+}
+
+/* Transitions douces par défaut sur l'interactif */
+button, a, input, select, textarea {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease,
+    box-shadow 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+}
+
+/* Défilement doux et pas de surbrillance tactile bleue */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Rangée défilante sans barre de défilement visible (chips d'actions) */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

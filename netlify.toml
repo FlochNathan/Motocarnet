@@ -1,0 +1,10 @@
+# Configuration Netlify — MotoCarnet (Next.js 15)
+# Le runtime Next.js de Netlify est détecté automatiquement.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  # Version de Node verrouillée (celle utilisée en développement)
+  NODE_VERSION = "22"
