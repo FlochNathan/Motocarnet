@@ -37,12 +37,18 @@ export default function SuspensionsPage() {
           icon="🎚️"
           title="Aucun réglage enregistré"
           text="Enregistrez vos réglages de fourche et d'amortisseur pour chaque terrain, et retrouvez-les au bord de la piste."
-          action={<ButtonLink href="/suspensions/nouveau">Créer un réglage</ButtonLink>}
+          action={
+            <div className="flex flex-col gap-2">
+              <ButtonLink href="/suspensions/nouveau">Créer un réglage</ButtonLink>
+              <ButtonLink href="/suspensions/conseils" variant="secondary">💡 Conseils de réglage</ButtonLink>
+            </div>
+          }
         />
       ) : (
         <>
-          <div className="mb-4 grid grid-cols-2 gap-2">
+          <div className="mb-4 grid grid-cols-3 gap-2">
             <ButtonLink href="/suspensions/nouveau" size="md">＋ Nouveau</ButtonLink>
+            <ButtonLink href="/suspensions/conseils" variant="secondary" size="md">💡 Conseils</ButtonLink>
             <ButtonLink href="/suspensions/comparer" variant="secondary" size="md">⚖️ Comparer</ButtonLink>
           </div>
           <div className="flex flex-col gap-2">
