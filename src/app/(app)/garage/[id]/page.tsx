@@ -49,8 +49,10 @@ export default function FicheMotoPage({ params }: { params: Promise<{ id: string
 
   const { moto } = data;
   const items = buildMaintenanceOverview(moto, moto.motorcycle_models.stroke, data.types, data.schedules, data.records, todayISO());
+  // Le carnet n'affiche que les opérations que l'utilisateur a choisi de suivre
+  const followedItems = items.filter((i) => i.schedule !== null);
   const byCategory = new Map<MaintenanceCategory, MaintenanceItem[]>();
-  for (const item of items) {
+  for (const item of followedItems) {
     const list = byCategory.get(item.type.category) ?? [];
     list.push(item);
     byCategory.set(item.type.category, list);
@@ -147,9 +149,25 @@ export default function FicheMotoPage({ params }: { params: Promise<{ id: string
         {moto.notes && <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-sm text-ink-dim">{moto.notes}</p>}
       </Card>
 
-      {/* Carnet d'entretien */}
+      {/* Carnet d'entretien — uniquement les opérations suivies */}
       <section className="mt-6">
-        <h2 className="mb-2 text-lg font-bold">Carnet d'entretien</h2>
+        <div className="mb-2 flex items-baseline justify-between">
+          <h2 className="text-lg font-bold">Suivi d'entretien</h2>
+          <Link href={`/garage/${moto.id}/echeances`} className="text-sm font-bold text-accent-strong">Gérer</Link>
+        </div>
+        {followedItems.length === 0 && (
+          <Card className="flex items-center gap-3">
+            <span className="text-2xl" aria-hidden>📅</span>
+            <div>
+              <p className="text-sm font-semibold text-ink-dim">
+                Aucune opération suivie pour cette moto.
+              </p>
+              <Link href={`/garage/${moto.id}/echeances`} className="text-sm font-bold text-accent-strong">
+                Ajouter un suivi (ex : vidange toutes les 5 h)
+              </Link>
+            </div>
+          </Card>
+        )}
         {(["moteur", "partie_cycle", "suspensions"] as MaintenanceCategory[]).map((cat) => {
           const list = byCategory.get(cat) ?? [];
           if (list.length === 0) return null;

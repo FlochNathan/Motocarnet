@@ -1,12 +1,11 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { use, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useSupabaseQuery, must } from "@/lib/hooks";
 import { MOTO_SELECT } from "@/lib/moto";
 import { MAINTENANCE_CATEGORY_LABELS } from "@/lib/domain";
-import { Button, Card, ErrorText, Input, PageHeader, Spinner } from "@/components/ui";
+import { Button, Card, ConfirmButton, EmptyState, ErrorText, Field, Input, PageHeader, Select, Spinner } from "@/components/ui";
 import type { MaintenanceCategory, MaintenanceSchedule, MaintenanceType, MotorcycleWithModel } from "@/lib/types";
 
 interface EcheancesData {
@@ -15,20 +14,15 @@ interface EcheancesData {
   schedules: MaintenanceSchedule[];
 }
 
-interface RowState {
-  hours: string;
-  months: string;
-  alertEnabled: boolean;
-  beforeHours: string;
-  beforeMonths: string;
-}
-
-/** Fréquences d'entretien et alertes : « toutes les X heures » et/ou « tous les X mois » */
+/**
+ * Suivis d'entretien : rien n'est suivi par défaut, l'utilisateur
+ * ajoute ses échéances une par une. Chaque action est enregistrée
+ * immédiatement (pas de gros formulaire à valider).
+ */
 export default function EcheancesPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const router = useRouter();
 
-  const { data, loading } = useSupabaseQuery<EcheancesData>(async (sb) => {
+  const { data, loading, reload } = useSupabaseQuery<EcheancesData>(async (sb) => {
     const [moto, types, schedules] = await Promise.all([
       sb.from("motorcycles").select(MOTO_SELECT).eq("id", id).single(),
       sb.from("maintenance_types").select("*").eq("active", true).order("sort"),
@@ -37,176 +31,309 @@ export default function EcheancesPage({ params }: { params: Promise<{ id: string
     return { moto: must(moto), types: must(types), schedules: must(schedules) };
   }, [id]);
 
-  const [values, setValues] = useState<Record<number, RowState>>({});
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!data) return;
-    const v: Record<number, RowState> = {};
-    for (const t of data.types) {
-      const s = data.schedules.find((x) => x.maintenance_type_id === t.id);
-      v[t.id] = {
-        hours: s?.interval_hours != null ? String(s.interval_hours) : "",
-        months: s?.interval_months != null ? String(s.interval_months) : "",
-        alertEnabled: s?.alert_enabled ?? true,
-        beforeHours: s?.alert_before_hours != null ? String(s.alert_before_hours) : "",
-        beforeMonths: s?.alert_before_months != null ? String(s.alert_before_months) : "",
-      };
-    }
-    setValues(v);
-  }, [data]);
-
-  function setRow(typeId: number, patch: Partial<RowState>) {
-    setValues((v) => ({ ...v, [typeId]: { ...v[typeId], ...patch } }));
-  }
-
-  async function save() {
-    if (!data) return;
-    setError("");
-    setBusy(true);
-    try {
-      const supabase = createClient();
-      const { data: userData } = await supabase.auth.getUser();
-      const userId = userData.user!.id;
-
-      const num = (s: string) => (s.trim() === "" ? null : Number(s.replace(",", ".")));
-
-      const toUpsert = [];
-      const toDelete = [];
-      for (const t of data.types) {
-        const v = values[t.id];
-        if (!v) continue;
-        const hours = num(v.hours);
-        const months = v.months.trim() === "" ? null : parseInt(v.months);
-        const existing = data.schedules.find((x) => x.maintenance_type_id === t.id);
-        if (hours === null && months === null) {
-          if (existing) toDelete.push(existing.id);
-        } else {
-          toUpsert.push({
-            user_id: userId,
-            motorcycle_id: id,
-            maintenance_type_id: t.id,
-            interval_hours: hours,
-            interval_months: months,
-            alert_enabled: v.alertEnabled,
-            alert_before_hours: num(v.beforeHours),
-            alert_before_months: num(v.beforeMonths),
-          });
-        }
-      }
-      if (toDelete.length > 0) {
-        const { error: e1 } = await supabase.from("maintenance_schedules").delete().in("id", toDelete);
-        if (e1) throw new Error(e1.message);
-      }
-      if (toUpsert.length > 0) {
-        const { error: e2 } = await supabase
-          .from("maintenance_schedules")
-          .upsert(toUpsert, { onConflict: "motorcycle_id,maintenance_type_id" });
-        if (e2) throw new Error(e2.message);
-      }
-      router.push(`/garage/${id}`);
-      router.refresh();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Enregistrement impossible.");
-      setBusy(false);
-    }
-  }
-
-  if (loading || !data) return (<><PageHeader title="Échéances" back={`/garage/${id}`} /><Spinner /></>);
+  if (loading || !data) return (<><PageHeader title="Suivis d'entretien" back={`/garage/${id}`} /><Spinner /></>);
 
   const stroke = data.moto.motorcycle_models.stroke;
-  const visibleTypes = data.types.filter((t) => t.applies_to_stroke === null || t.applies_to_stroke === stroke);
+  const availableTypes = data.types.filter(
+    (t) =>
+      (t.applies_to_stroke === null || t.applies_to_stroke === stroke) &&
+      !data.schedules.some((s) => s.maintenance_type_id === t.id),
+  );
+  const typeOf = (typeId: number) => data.types.find((t) => t.id === typeId);
+
+  // Suivis groupés par catégorie, dans l'ordre du référentiel
+  const followed = [...data.schedules].sort((a, b) => {
+    const ta = typeOf(a.maintenance_type_id);
+    const tb = typeOf(b.maintenance_type_id);
+    return (ta?.category ?? "").localeCompare(tb?.category ?? "") || (ta?.sort ?? 0) - (tb?.sort ?? 0);
+  });
+
+  async function toggleBell(s: MaintenanceSchedule) {
+    const supabase = createClient();
+    await supabase.from("maintenance_schedules").update({ alert_enabled: !s.alert_enabled }).eq("id", s.id);
+    reload();
+  }
+
+  async function removeSchedule(s: MaintenanceSchedule) {
+    const supabase = createClient();
+    await supabase.from("maintenance_schedules").delete().eq("id", s.id);
+    reload();
+  }
+
+  async function removeAll() {
+    const supabase = createClient();
+    await supabase.from("maintenance_schedules").delete().eq("motorcycle_id", id);
+    reload();
+  }
 
   return (
     <>
-      <PageHeader title="Échéances et alertes" back={`/garage/${id}`} />
+      <PageHeader title="Suivis d'entretien" back={`/garage/${id}`} />
       <p className="mb-4 text-sm leading-relaxed text-ink-dim">
-        Définissez la fréquence de chaque opération (heures moteur et/ou mois — la première échéance
-        atteinte fait foi). La cloche 🔔 contrôle l'alerte : coupée, l'opération garde son statut sur
-        la fiche moto mais ne remonte plus dans les urgences. Vous pouvez aussi choisir votre propre
-        seuil d'alerte (« prévenir X h avant ») au lieu du seuil automatique.
+        Choisissez les opérations que vous voulez surveiller et leur fréquence.
+        Seules celles-ci apparaîtront dans le carnet et les alertes.
       </p>
 
-      {(["moteur", "partie_cycle", "suspensions"] as MaintenanceCategory[]).map((cat) => {
-        const list = visibleTypes.filter((t) => t.category === cat);
-        if (list.length === 0) return null;
-        return (
-          <div key={cat} className="mb-4">
-            <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-ink-dim">{MAINTENANCE_CATEGORY_LABELS[cat]}</h2>
-            <Card className="divide-y divide-border p-0">
-              {list.map((t) => {
-                const v = values[t.id];
-                const tracked = v && (v.hours.trim() !== "" || v.months.trim() !== "");
-                return (
-                  <div key={t.id} className="px-4 py-3">
-                    {/* Ligne 1 : nom + cloche */}
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="min-w-0 flex-1 text-sm font-semibold">{t.name}</p>
-                      <button
-                        type="button"
-                        role="switch"
-                        aria-checked={v?.alertEnabled ?? true}
-                        aria-label={`${t.name} : alerte ${v?.alertEnabled ? "activée" : "coupée"}`}
-                        disabled={!tracked}
-                        onClick={() => setRow(t.id, { alertEnabled: !(v?.alertEnabled ?? true) })}
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg disabled:opacity-30 ${
-                          v?.alertEnabled ?? true ? "bg-accent-soft" : "bg-surface-2 grayscale opacity-60"
-                        }`}
-                      >
-                        {v?.alertEnabled ?? true ? "🔔" : "🔕"}
-                      </button>
-                    </div>
-                    {/* Ligne 2 : fréquence */}
-                    <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1.5 text-xs font-medium text-ink-dim">
-                      <span className="w-14">Tous les</span>
-                      <Input
-                        type="number" min={0} step="0.5" inputMode="decimal"
-                        value={v?.hours ?? ""}
-                        onChange={(e) => setRow(t.id, { hours: e.target.value })}
-                        className="!min-h-10 w-16 text-center" aria-label={`${t.name} : fréquence en heures`} placeholder="—"
-                      />
-                      <span>h</span>
-                      <Input
-                        type="number" min={0} inputMode="numeric"
-                        value={v?.months ?? ""}
-                        onChange={(e) => setRow(t.id, { months: e.target.value })}
-                        className="!min-h-10 w-14 text-center" aria-label={`${t.name} : fréquence en mois`} placeholder="—"
-                      />
-                      <span>mois</span>
-                    </div>
-                    {/* Ligne 3 : seuil d'alerte personnalisé */}
-                    {tracked && v?.alertEnabled && (
-                      <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1.5 text-xs font-medium text-ink-dim">
-                        <span className="w-14">Alerter</span>
-                        <Input
-                          type="number" min={0} step="0.5" inputMode="decimal"
-                          value={v.beforeHours}
-                          onChange={(e) => setRow(t.id, { beforeHours: e.target.value })}
-                          className="!min-h-10 w-16 text-center" aria-label={`${t.name} : alerter X heures avant`} placeholder="auto"
-                        />
-                        <span>h avant</span>
-                        <Input
-                          type="number" min={0} step="0.5" inputMode="decimal"
-                          value={v.beforeMonths}
-                          onChange={(e) => setRow(t.id, { beforeMonths: e.target.value })}
-                          className="!min-h-10 w-14 text-center" aria-label={`${t.name} : alerter X mois avant`} placeholder="auto"
-                        />
-                        <span>mois avant</span>
-                      </div>
-                    )}
+      {!showAdd && (
+        <Button className="mb-4" onClick={() => setShowAdd(true)}>＋ Ajouter un suivi</Button>
+      )}
+      {showAdd && (
+        <AddForm
+          motoId={id}
+          types={availableTypes}
+          onDone={() => { setShowAdd(false); reload(); }}
+          onCancel={() => setShowAdd(false)}
+        />
+      )}
+
+      {followed.length === 0 && !showAdd ? (
+        <EmptyState
+          icon="📅"
+          title="Aucun suivi pour l'instant"
+          text="Ajoutez votre premier suivi — par exemple « Vidange moteur toutes les 5 h » — et PitLog surveillera l'échéance pour vous."
+        />
+      ) : (
+        <div className="flex flex-col gap-2.5">
+          {followed.map((s) => {
+            const type = typeOf(s.maintenance_type_id);
+            if (!type) return null;
+            return (
+              <Card key={s.id} className="py-3">
+                <div className="flex items-center gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-bold">{type.name}</p>
+                    <p className="text-xs text-ink-dim">
+                      {MAINTENANCE_CATEGORY_LABELS[type.category]} •{" "}
+                      {[
+                        s.interval_hours != null ? `toutes les ${s.interval_hours} h` : "",
+                        s.interval_months != null ? `tous les ${s.interval_months} mois` : "",
+                      ].filter(Boolean).join(" / ")}
+                      {!s.alert_enabled && " • alerte coupée"}
+                    </p>
                   </div>
-                );
-              })}
-            </Card>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={s.alert_enabled}
+                    aria-label={`${type.name} : alerte ${s.alert_enabled ? "activée" : "coupée"}`}
+                    onClick={() => toggleBell(s)}
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg ${
+                      s.alert_enabled ? "bg-accent-soft" : "bg-surface-2 grayscale opacity-60"
+                    }`}
+                  >
+                    {s.alert_enabled ? "🔔" : "🔕"}
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`Modifier ${type.name}`}
+                    onClick={() => setEditingId(editingId === s.id ? null : s.id)}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-2 text-ink-dim"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" /></svg>
+                  </button>
+                </div>
+                {editingId === s.id && (
+                  <EditForm
+                    schedule={s}
+                    typeName={type.name}
+                    onDone={() => { setEditingId(null); reload(); }}
+                    onRemove={() => removeSchedule(s)}
+                  />
+                )}
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {followed.length > 0 && (
+        <div className="mt-6">
+          <ConfirmButton
+            label="Tout retirer"
+            confirmTitle="Retirer tous les suivis ?"
+            confirmText="Toutes les échéances de cette moto seront supprimées. L'historique des entretiens déjà enregistrés est conservé."
+            onConfirm={removeAll}
+          />
+        </div>
+      )}
+    </>
+  );
+}
+
+// ------------------------------------------------------------
+// Ajout d'un suivi : opération → fréquence → terminé
+// ------------------------------------------------------------
+function AddForm({
+  motoId,
+  types,
+  onDone,
+  onCancel,
+}: {
+  motoId: string;
+  types: MaintenanceType[];
+  onDone: () => void;
+  onCancel: () => void;
+}) {
+  const [typeId, setTypeId] = useState("");
+  const [hours, setHours] = useState("");
+  const [months, setMonths] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function save() {
+    setError("");
+    if (!typeId) {
+      setError("Choisissez une opération.");
+      return;
+    }
+    const h = hours.trim() === "" ? null : Number(hours.replace(",", "."));
+    const m = months.trim() === "" ? null : parseInt(months);
+    if (h === null && m === null) {
+      setError("Indiquez une fréquence : en heures, en mois, ou les deux.");
+      return;
+    }
+    setBusy(true);
+    const supabase = createClient();
+    const { data: userData } = await supabase.auth.getUser();
+    const { error: insertError } = await supabase.from("maintenance_schedules").insert({
+      user_id: userData.user!.id,
+      motorcycle_id: motoId,
+      maintenance_type_id: Number(typeId),
+      interval_hours: h,
+      interval_months: m,
+    });
+    setBusy(false);
+    if (insertError) {
+      setError("Enregistrement impossible. Réessayez.");
+      return;
+    }
+    onDone();
+  }
+
+  return (
+    <Card className="mb-4 flex flex-col gap-3">
+      <Field label="Opération à suivre">
+        <Select value={typeId} onChange={(e) => setTypeId(e.target.value)}>
+          <option value="">Choisir…</option>
+          {(["moteur", "partie_cycle", "suspensions"] as MaintenanceCategory[]).map((cat) => (
+            <optgroup key={cat} label={MAINTENANCE_CATEGORY_LABELS[cat]}>
+              {types.filter((t) => t.category === cat).map((t) => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </optgroup>
+          ))}
+        </Select>
+      </Field>
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Toutes les… (heures)">
+          <Input type="number" min={0} step="0.5" inputMode="decimal" value={hours} onChange={(e) => setHours(e.target.value)} placeholder="Ex : 5" />
+        </Field>
+        <Field label="Ou tous les… (mois)">
+          <Input type="number" min={0} inputMode="numeric" value={months} onChange={(e) => setMonths(e.target.value)} placeholder="Ex : 12" />
+        </Field>
+      </div>
+      <p className="text-xs text-ink-dim">Si les deux sont remplis, la première échéance atteinte fait foi.</p>
+      <ErrorText>{error}</ErrorText>
+      <Button size="md" onClick={save} disabled={busy}>{busy ? "Ajout…" : "Ajouter le suivi"}</Button>
+      <Button size="md" variant="secondary" onClick={onCancel}>Annuler</Button>
+    </Card>
+  );
+}
+
+// ------------------------------------------------------------
+// Modification d'un suivi (repliée derrière le crayon)
+// ------------------------------------------------------------
+function EditForm({
+  schedule,
+  typeName,
+  onDone,
+  onRemove,
+}: {
+  schedule: MaintenanceSchedule;
+  typeName: string;
+  onDone: () => void;
+  onRemove: () => void;
+}) {
+  const [hours, setHours] = useState(schedule.interval_hours != null ? String(schedule.interval_hours) : "");
+  const [months, setMonths] = useState(schedule.interval_months != null ? String(schedule.interval_months) : "");
+  const [showAdvanced, setShowAdvanced] = useState(
+    schedule.alert_before_hours != null || schedule.alert_before_months != null,
+  );
+  const [beforeH, setBeforeH] = useState(schedule.alert_before_hours != null ? String(schedule.alert_before_hours) : "");
+  const [beforeM, setBeforeM] = useState(schedule.alert_before_months != null ? String(schedule.alert_before_months) : "");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function save() {
+    setError("");
+    const h = hours.trim() === "" ? null : Number(hours.replace(",", "."));
+    const m = months.trim() === "" ? null : parseInt(months);
+    if (h === null && m === null) {
+      setError("Indiquez au moins une fréquence (ou supprimez le suivi).");
+      return;
+    }
+    setBusy(true);
+    const supabase = createClient();
+    const { error: updateError } = await supabase
+      .from("maintenance_schedules")
+      .update({
+        interval_hours: h,
+        interval_months: m,
+        alert_before_hours: beforeH.trim() === "" ? null : Number(beforeH.replace(",", ".")),
+        alert_before_months: beforeM.trim() === "" ? null : Number(beforeM.replace(",", ".")),
+      })
+      .eq("id", schedule.id);
+    setBusy(false);
+    if (updateError) {
+      setError("Enregistrement impossible. Réessayez.");
+      return;
+    }
+    onDone();
+  }
+
+  return (
+    <div className="mt-3 flex flex-col gap-3 border-t border-border pt-3">
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Toutes les… (heures)">
+          <Input type="number" min={0} step="0.5" inputMode="decimal" value={hours} onChange={(e) => setHours(e.target.value)} placeholder="—" />
+        </Field>
+        <Field label="Tous les… (mois)">
+          <Input type="number" min={0} inputMode="numeric" value={months} onChange={(e) => setMonths(e.target.value)} placeholder="—" />
+        </Field>
+      </div>
+
+      {!showAdvanced ? (
+        <button type="button" onClick={() => setShowAdvanced(true)} className="self-start text-sm font-semibold text-accent">
+          ⚙️ Seuil d'alerte personnalisé (avancé)
+        </button>
+      ) : (
+        <div>
+          <p className="mb-1.5 text-[0.8125rem] font-semibold text-ink-dim">
+            Passer à l'orange… <span className="font-normal">(vide = automatique, à 20 % de la fréquence)</span>
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="… X heures avant">
+              <Input type="number" min={0} step="0.5" inputMode="decimal" value={beforeH} onChange={(e) => setBeforeH(e.target.value)} placeholder="auto" />
+            </Field>
+            <Field label="… X mois avant">
+              <Input type="number" min={0} step="0.5" inputMode="decimal" value={beforeM} onChange={(e) => setBeforeM(e.target.value)} placeholder="auto" />
+            </Field>
           </div>
-        );
-      })}
+        </div>
+      )}
 
       <ErrorText>{error}</ErrorText>
-      <div className="mt-3">
-        <Button onClick={save} disabled={busy}>{busy ? "Enregistrement…" : "Enregistrer les échéances"}</Button>
-      </div>
-    </>
+      <Button size="md" onClick={save} disabled={busy}>{busy ? "Enregistrement…" : "Enregistrer"}</Button>
+      <ConfirmButton
+        label={`Ne plus suivre « ${typeName} »`}
+        size="md"
+        confirmTitle="Retirer ce suivi ?"
+        confirmText="L'échéance sera supprimée. L'historique des entretiens déjà enregistrés est conservé."
+        onConfirm={onRemove}
+      />
+    </div>
   );
 }
