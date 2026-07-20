@@ -230,9 +230,9 @@ export default function AccueilPage() {
       {/* Actions rapides — chips à pastille d'icône */}
       <div className="scrollbar-none -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1">
         <ActionChip href="/sessions/nouvelle" icon="🏁" label="Session" tint="bg-accent-soft" />
+        <ActionChip href="/terrains" icon="🚩" label="Terrains" tint="bg-danger/10" />
         <ActionChip href="/entretiens/nouveau" icon="🔧" label="Entretien" tint="bg-violet/15" />
         <ActionChip href="/suspensions/nouveau" icon="🎚️" label="Réglage" tint="bg-ok/10" />
-        <ActionChip href="/terrains" icon="🚩" label="Terrains" tint="bg-danger/10" />
         <ActionChip href="/finances" icon="💶" label="Finances" tint="bg-violet/10" />
         <ActionChip href="/stats" icon="📊" label="Stats" tint="bg-warn/10" />
       </div>
