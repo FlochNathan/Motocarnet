@@ -27,9 +27,16 @@ const ITEMS = [
   },
   {
     href: "/suspensions",
-    label: "Suspensions",
+    label: "Suspension",
     icon: (
       <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v2M12 19v2" /><path d="M8 7h8M8 10h8M8 13h8M8 16h8" /><path d="M8 7l8 3M8 10l8 3M8 13l8 3" /></svg>
+    ),
+  },
+  {
+    href: "/terrains",
+    label: "Terrains",
+    icon: (
+      <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 21V4" /><path d="M5 4h13l-2.5 4L18 12H5" /></svg>
     ),
   },
   {
@@ -72,7 +79,7 @@ export default function BottomNav() {
         aria-label="Navigation principale"
         className="fixed inset-x-0 bottom-0 z-30 bg-surface/90 backdrop-blur-xl pb-[env(safe-area-inset-bottom)] shadow-[0_-6px_24px_rgb(120_72_45/0.08)]"
       >
-        <div className="mx-auto flex h-[4.25rem] max-w-lg items-stretch px-3">
+        <div className="mx-auto flex h-[4.25rem] max-w-lg items-stretch px-1">
           {ITEMS.map((item) => {
             const active =
               item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
@@ -91,7 +98,7 @@ export default function BottomNav() {
                   className={`absolute top-0 h-[3px] w-7 rounded-full bg-accent transition-opacity ${active ? "opacity-100" : "opacity-0"}`}
                 />
                 {item.icon}
-                <span className="mt-0.5 text-[10px] font-semibold">{item.label}</span>
+                <span className="mt-0.5 text-[9.5px] font-semibold tracking-tight">{item.label}</span>
               </Link>
             );
           })}
