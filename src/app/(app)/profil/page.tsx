@@ -14,7 +14,7 @@ import type { Profile, RiderLevel } from "@/lib/types";
 const BACKUP_TABLES = [
   "motorcycles", "riding_sessions", "maintenance_records", "maintenance_schedules",
   "custom_reminders", "suspension_setups", "suspension_setup_revisions", "suspension_feedback",
-  "parts", "expenses", "attachments",
+  "parts", "expenses", "attachments", "tracks", "track_posts",
 ] as const;
 
 export default function ProfilPage() {
@@ -174,7 +174,8 @@ export default function ProfilPage() {
       </Card>
 
       <div className="mt-3 flex flex-col gap-2">
-        <Link href="/stats"><Card className="flex items-center justify-between py-3"><span className="font-bold">📊 Statistiques</span><span className="text-ink-dim">›</span></Card></Link>
+        <Link href="/stats"><Card className="flex items-center justify-between py-3"><span className="font-bold">📊 Analyses</span><span className="text-ink-dim">›</span></Card></Link>
+        <Link href="/terrains"><Card className="flex items-center justify-between py-3"><span className="font-bold">🚩 Terrains (ouvert / fermé)</span><span className="text-ink-dim">›</span></Card></Link>
         {profile.is_admin && (
           <Link href="/admin"><Card className="flex items-center justify-between py-3"><span className="font-bold">🛠️ Administration</span><span className="text-ink-dim">›</span></Card></Link>
         )}
