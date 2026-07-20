@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Badge, Button, ButtonLink, Card, EmptyState, ErrorText, Field, Input, Spinner, StatusPill } from "@/components/ui";
@@ -41,6 +41,11 @@ interface UrgentEntry {
 
 export default function AccueilPage() {
   const [editHours, setEditHours] = useState(false);
+  const [hideStart, setHideStart] = useState(true);
+
+  useEffect(() => {
+    setHideStart(localStorage.getItem("mc-hide-start") === "1");
+  }, []);
   const { data, loading, reload } = useSupabaseQuery<DashboardData>(async (sb) => {
     const [profile, motos, sessions, types, schedules, records, reminders, setups, terrains] = await Promise.all([
       sb.from("profiles").select("display_name").single(),
@@ -100,7 +105,8 @@ export default function AccueilPage() {
     for (const item of urgentItems(items)) {
       urgent.push({
         key: `m-${moto.id}-${item.type.id}`,
-        href: `/garage/${moto.id}`,
+        // Un tap ouvre directement l'enregistrement pré-rempli de l'entretien
+        href: `/entretiens/nouveau?moto=${moto.id}&type=${item.type.id}`,
         icon: item.type.category === "moteur" ? "⚙️" : item.type.category === "suspensions" ? "🎚️" : "🔧",
         title: item.type.name,
         subtitle: motoLabel(moto),
@@ -229,6 +235,47 @@ export default function AccueilPage() {
         <ActionChip href="/finances" icon="💶" label="Finances" tint="bg-violet/10" />
         <ActionChip href="/stats" icon="📊" label="Stats" tint="bg-warn/10" />
       </div>
+
+      {/* Guide de démarrage — disparaît une fois les 3 étapes faites (ou masqué) */}
+      {!hideStart && (() => {
+        const steps = [
+          { done: data.schedules.length > 0, label: "Choisir quoi surveiller (ex : vidange toutes les 5 h)", href: `/garage/${primary.id}/echeances` },
+          { done: data.sessions.length > 0, label: "Enregistrer une première session de roulage", href: "/sessions/nouvelle" },
+          { done: data.lastSetup !== null, label: "Noter vos réglages de suspensions actuels", href: "/suspensions/nouveau" },
+        ];
+        if (steps.every((s) => s.done)) return null;
+        return (
+          <Card className="mt-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-extrabold">🚀 Bien démarrer</h2>
+              <button
+                onClick={() => {
+                  localStorage.setItem("mc-hide-start", "1");
+                  setHideStart(true);
+                }}
+                className="min-h-11 px-2 text-sm font-semibold text-ink-dim"
+              >
+                Masquer
+              </button>
+            </div>
+            <div className="mt-1 flex flex-col">
+              {steps.map((step) => (
+                <Link key={step.href} href={step.href} className="flex min-h-12 items-center gap-3 border-b border-border py-2 last:border-0">
+                  <span
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-black ${
+                      step.done ? "bg-ok/15 text-ok" : "border-2 border-border text-transparent"
+                    }`}
+                    aria-hidden
+                  >
+                    ✓
+                  </span>
+                  <span className={`text-sm font-semibold ${step.done ? "text-ink-dim line-through" : ""}`}>{step.label}</span>
+                </Link>
+              ))}
+            </div>
+          </Card>
+        );
+      })()}
 
       {/* Entretiens urgents */}
       <section className="mt-6">

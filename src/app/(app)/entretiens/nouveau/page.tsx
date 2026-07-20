@@ -43,6 +43,7 @@ function EntretienForm() {
   const [workshop, setWorkshop] = useState("");
   const [comment, setComment] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -168,25 +169,37 @@ function EntretienForm() {
           </div>
         </Field>
 
-        <Field label="Pièces remplacées (facultatif)">
-          <Input value={parts} onChange={(e) => setParts(e.target.value)} placeholder="Ex : piston Vertex, joints…" />
-        </Field>
+        {!showDetails ? (
+          <button
+            type="button"
+            onClick={() => setShowDetails(true)}
+            className="min-h-11 self-start text-sm font-semibold text-accent"
+          >
+            ＋ Ajouter des détails (pièces, coût, photo…)
+          </button>
+        ) : (
+          <>
+            <Field label="Pièces remplacées (facultatif)">
+              <Input value={parts} onChange={(e) => setParts(e.target.value)} placeholder="Ex : piston Vertex, joints…" />
+            </Field>
 
-        <Field label="Coût en € (facultatif)">
-          <Input type="number" min={0} step="0.01" inputMode="decimal" value={cost} onChange={(e) => setCost(e.target.value)} placeholder="0,00" />
-        </Field>
+            <Field label="Coût en € (facultatif)">
+              <Input type="number" min={0} step="0.01" inputMode="decimal" value={cost} onChange={(e) => setCost(e.target.value)} placeholder="0,00" />
+            </Field>
 
-        <Field label="Atelier ou mécanicien (facultatif)">
-          <Input value={workshop} onChange={(e) => setWorkshop(e.target.value)} placeholder="Moi-même, concession…" />
-        </Field>
+            <Field label="Atelier ou mécanicien (facultatif)">
+              <Input value={workshop} onChange={(e) => setWorkshop(e.target.value)} placeholder="Moi-même, concession…" />
+            </Field>
 
-        <Field label="Photo ou facture (facultatif)">
-          <Input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)} className="pt-2.5" />
-        </Field>
+            <Field label="Photo ou facture (facultatif)">
+              <Input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)} className="pt-2.5" />
+            </Field>
 
-        <Field label="Commentaire (facultatif)">
-          <Textarea value={comment} onChange={(e) => setComment(e.target.value)} />
-        </Field>
+            <Field label="Commentaire (facultatif)">
+              <Textarea value={comment} onChange={(e) => setComment(e.target.value)} />
+            </Field>
+          </>
+        )}
 
         <ErrorText>{error}</ErrorText>
         <Button onClick={save} disabled={busy}>
