@@ -1,5 +1,26 @@
 import { describe, expect, it } from "vitest";
-import { classifyText, classifyWeekend, nextWeekend, parseRss } from "./terrains";
+import { classifyText, classifyWeekend, facebookEmbedUrl, nextWeekend, parseRss } from "./terrains";
+
+describe("facebookEmbedUrl", () => {
+  it("construit l'URL du widget pour une page Facebook", () => {
+    const url = facebookEmbedUrl("https://www.facebook.com/mxpark");
+    expect(url).toContain("facebook.com/plugins/page.php");
+    expect(url).toContain(encodeURIComponent("https://www.facebook.com/mxpark"));
+    expect(url).toContain("tabs=timeline");
+  });
+
+  it("accepte les URL sans protocole et fb.com", () => {
+    expect(facebookEmbedUrl("facebook.com/mxpark")).toContain("plugins/page.php");
+    expect(facebookEmbedUrl("https://fb.com/mxpark")).toContain("plugins/page.php");
+  });
+
+  it("rejette ce qui n'est pas Facebook ou sans page", () => {
+    expect(facebookEmbedUrl("https://instagram.com/mxpark")).toBeNull();
+    expect(facebookEmbedUrl("https://www.facebook.com/")).toBeNull();
+    expect(facebookEmbedUrl(null)).toBeNull();
+    expect(facebookEmbedUrl("pas une url du tout §§")).toBeNull();
+  });
+});
 
 const SAMPLE_RSS = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0"><channel>

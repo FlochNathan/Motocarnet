@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Badge, Button, Card, ConfirmButton, EmptyState, ErrorText, Field, Input, PageHeader, Select, Spinner, StatusPill } from "@/components/ui";
+import { Button, Card, ConfirmButton, EmptyState, ErrorText, Field, Input, PageHeader, Select, Spinner, StatusPill } from "@/components/ui";
 import { useSupabaseQuery, must } from "@/lib/hooks";
-import { classifyWeekend, nextWeekend } from "@/lib/terrains";
+import { classifyWeekend, facebookEmbedUrl, nextWeekend } from "@/lib/terrains";
 import { formatDate } from "@/lib/format";
 import type { TerrainType, Track, TrackPost } from "@/lib/types";
 
 export default function TerrainsPage() {
   const { data, loading, reload } = useSupabaseQuery(async (sb) => {
-    // Rafraîchit d'abord les flux périmés côté serveur, puis lit les données
+    // Rafraîchit les éventuels flux RSS périmés (badge automatique), puis lit les données
     try {
       await fetch("/api/terrains/refresh", { method: "POST" });
     } catch {
@@ -31,17 +31,6 @@ export default function TerrainsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Track | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
-
-  async function refreshNow() {
-    setRefreshing(true);
-    try {
-      await fetch("/api/terrains/refresh?force=1", { method: "POST" });
-    } finally {
-      setRefreshing(false);
-      reload();
-    }
-  }
 
   async function removeTrack(track: Track) {
     const supabase = createClient();
@@ -57,24 +46,10 @@ export default function TerrainsPage() {
 
   return (
     <>
-      <PageHeader
-        title="Terrains"
-        action={
-          data.tracks.length > 0 ? (
-            <button
-              onClick={refreshNow}
-              disabled={refreshing}
-              aria-label="Actualiser les annonces"
-              className="flex h-11 w-11 items-center justify-center rounded-full text-xl hover:bg-surface-2 disabled:opacity-40"
-            >
-              <span className={refreshing ? "animate-spin" : ""}>🔄</span>
-            </button>
-          ) : undefined
-        }
-      />
+      <PageHeader title="Terrains" />
       <p className="mb-1 text-sm font-bold text-ink-dim">Week-end du {weekendLabel}</p>
       <p className="mb-4 text-xs text-ink-dim">
-        Statut déduit automatiquement des annonces Facebook — vérifiez le post avant de prendre la route.
+        Les annonces Facebook de vos terrains, directement dans PitLog.
       </p>
 
       {!showForm && !editing && (
@@ -93,20 +68,16 @@ export default function TerrainsPage() {
         <EmptyState
           icon="🚩"
           title="Aucun terrain suivi"
-          text="1. Trouvez la page Facebook de votre terrain. 2. Créez son flux RSS (gratuit, ex : rss.app). 3. Ajoutez le terrain ici : chaque week-end, PitLog lira ses annonces et affichera OUVERT ou FERMÉ automatiquement."
+          text="Collez simplement l'adresse de la page Facebook de votre terrain : ses annonces d'ouverture s'afficheront ici, chaque week-end, sans quitter l'app."
           action={<Button onClick={() => setShowForm(true)}>Suivre mon premier terrain</Button>}
         />
       ) : (
         <div className="flex flex-col gap-2.5">
           {data.tracks.map((track) => {
             const posts = data.posts.filter((p) => p.track_id === track.id);
-            const verdict = classifyWeekend(posts, weekend);
-            const pill =
-              verdict.status === "ouvert"
-                ? { status: "ok" as const, label: "OUVERT" }
-                : verdict.status === "ferme"
-                  ? { status: "overdue" as const, label: "FERMÉ" }
-                  : { status: "none" as const, label: "Pas d'annonce" };
+            const hasAutoBadge = Boolean(track.feed_url);
+            const verdict = hasAutoBadge ? classifyWeekend(posts, weekend) : null;
+            const embedUrl = facebookEmbedUrl(track.facebook_url);
             const isOpen = expanded === track.id;
 
             return (
@@ -115,14 +86,18 @@ export default function TerrainsPage() {
                   <div className="min-w-0">
                     <p className="truncate font-extrabold">{track.name}</p>
                     <p className="truncate text-xs text-ink-dim">
-                      {[track.city, terrainName(track.terrain_type_id)].filter(Boolean).join(" • ") || "—"}
-                      {!track.feed_url && " • pas de flux RSS"}
+                      {[track.city, terrainName(track.terrain_type_id)].filter(Boolean).join(" • ") || "Page Facebook suivie"}
                     </p>
                   </div>
-                  <StatusPill status={pill.status} label={pill.label} />
+                  {verdict && (
+                    <StatusPill
+                      status={verdict.status === "ouvert" ? "ok" : verdict.status === "ferme" ? "overdue" : "none"}
+                      label={verdict.status === "ouvert" ? "OUVERT" : verdict.status === "ferme" ? "FERMÉ" : "Pas d'annonce"}
+                    />
+                  )}
                 </div>
 
-                {verdict.post && (
+                {verdict?.post && (
                   <a
                     href={verdict.post.link}
                     target="_blank"
@@ -137,9 +112,9 @@ export default function TerrainsPage() {
                 )}
 
                 <div className="mt-2.5 flex flex-wrap gap-1.5">
-                  {posts.length > 0 && (
-                    <Button size="sm" variant="secondary" onClick={() => setExpanded(isOpen ? null : track.id)}>
-                      {isOpen ? "Masquer" : `Annonces (${posts.length})`}
+                  {embedUrl && (
+                    <Button size="sm" onClick={() => setExpanded(isOpen ? null : track.id)}>
+                      {isOpen ? "Masquer les annonces" : "📰 Voir les annonces"}
                     </Button>
                   )}
                   {track.facebook_url && (
@@ -159,19 +134,26 @@ export default function TerrainsPage() {
                     label="✕"
                     size="sm"
                     confirmTitle="Ne plus suivre ce terrain ?"
-                    confirmText={`« ${track.name} » et ses annonces enregistrées seront supprimés.`}
+                    confirmText={`« ${track.name} » sera retiré de vos terrains suivis.`}
                     onConfirm={() => removeTrack(track)}
                   />
                 </div>
 
-                {isOpen && (
-                  <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
-                    {posts.slice(0, 8).map((post) => (
-                      <a key={post.id} href={post.link} target="_blank" rel="noopener noreferrer" className="block">
-                        <p className="text-xs font-bold text-ink-dim">{formatDate(post.published_at.slice(0, 10))} ↗</p>
-                        <p className="line-clamp-2 text-sm">{post.content ?? post.title ?? "(sans texte)"}</p>
-                      </a>
-                    ))}
+                {/* Fil Facebook intégré (widget officiel — chargé seulement une fois déplié) */}
+                {isOpen && embedUrl && (
+                  <div className="mt-3 overflow-hidden rounded-xl border border-border">
+                    <iframe
+                      src={embedUrl}
+                      title={`Annonces Facebook — ${track.name}`}
+                      className="h-[560px] w-full"
+                      style={{ border: "none" }}
+                      scrolling="yes"
+                      allow="encrypted-media"
+                      loading="lazy"
+                    />
+                    <p className="border-t border-border bg-surface-2 px-3 py-2 text-xs text-ink-dim">
+                      Fil affiché par Facebook. S'il reste vide, la page bloque l'intégration — utilisez le bouton « Facebook ↗ ».
+                    </p>
                   </div>
                 )}
               </Card>
@@ -201,6 +183,7 @@ function TrackForm({
   const [city, setCity] = useState(initial?.city ?? "");
   const [facebookUrl, setFacebookUrl] = useState(initial?.facebook_url ?? "");
   const [feedUrl, setFeedUrl] = useState(initial?.feed_url ?? "");
+  const [showAdvanced, setShowAdvanced] = useState(Boolean(initial?.feed_url));
   const [terrainId, setTerrainId] = useState(initial?.terrain_type_id != null ? String(initial.terrain_type_id) : "");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -209,6 +192,10 @@ function TrackForm({
     setError("");
     if (!name.trim()) {
       setError("Donnez un nom au terrain.");
+      return;
+    }
+    if (facebookUrl.trim() && facebookEmbedUrl(facebookUrl) === null) {
+      setError("Cette adresse ne ressemble pas à une page Facebook (attendu : facebook.com/nom-du-terrain).");
       return;
     }
     if (feedUrl.trim() && !/^https?:\/\//i.test(feedUrl.trim())) {
@@ -224,7 +211,6 @@ function TrackForm({
       facebook_url: facebookUrl.trim() || null,
       feed_url: feedUrl.trim() || null,
       terrain_type_id: terrainId ? Number(terrainId) : null,
-      // Nouveau flux : re-téléchargement immédiat au prochain chargement
       last_fetched_at: null,
     };
     const { error: saveError } = initial
@@ -246,6 +232,9 @@ function TrackForm({
       <Field label="Nom du terrain">
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex : MX Park Romagné" />
       </Field>
+      <Field label="Page Facebook du terrain" hint="Ses annonces s'afficheront directement dans PitLog.">
+        <Input inputMode="url" value={facebookUrl} onChange={(e) => setFacebookUrl(e.target.value)} placeholder="facebook.com/votre-terrain" />
+      </Field>
       <div className="grid grid-cols-2 gap-3">
         <Field label="Ville (facultatif)">
           <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="—" />
@@ -257,15 +246,20 @@ function TrackForm({
           </Select>
         </Field>
       </div>
-      <Field label="Page Facebook (facultatif)">
-        <Input inputMode="url" value={facebookUrl} onChange={(e) => setFacebookUrl(e.target.value)} placeholder="https://facebook.com/votreterrain" />
-      </Field>
-      <Field
-        label="Flux RSS de la page (pour le statut automatique)"
-        hint="Créez-le en 2 min sur rss.app : collez l'URL de la page Facebook, puis copiez ici l'URL du flux généré (…/feed.xml)."
-      >
-        <Input inputMode="url" value={feedUrl} onChange={(e) => setFeedUrl(e.target.value)} placeholder="https://rss.app/feeds/….xml" />
-      </Field>
+
+      {!showAdvanced ? (
+        <button type="button" onClick={() => setShowAdvanced(true)} className="self-start text-sm font-semibold text-accent">
+          ⚙️ Badge OUVERT/FERMÉ automatique (avancé)
+        </button>
+      ) : (
+        <Field
+          label="Flux RSS de la page (badge automatique)"
+          hint="Facultatif. Créez le flux sur rss.app en collant l'URL Facebook, puis copiez ici l'URL générée : PitLog analysera les posts et affichera OUVERT/FERMÉ tout seul."
+        >
+          <Input inputMode="url" value={feedUrl} onChange={(e) => setFeedUrl(e.target.value)} placeholder="https://rss.app/feeds/….xml" />
+        </Field>
+      )}
+
       <ErrorText>{error}</ErrorText>
       <Button size="md" onClick={save} disabled={busy}>
         {busy ? "Enregistrement…" : initial ? "Enregistrer" : "Suivre ce terrain"}

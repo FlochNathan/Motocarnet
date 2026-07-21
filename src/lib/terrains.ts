@@ -3,6 +3,36 @@
 // ouvert/fermé du week-end à partir des posts Facebook.
 // ============================================================
 
+/**
+ * URL du widget officiel Facebook (Page Plugin) affichant le fil d'une page
+ * publique dans une iframe — sans API ni compte développeur. Retourne null
+ * si l'URL fournie n'est pas une page Facebook.
+ */
+export function facebookEmbedUrl(pageUrl: string | null | undefined, width = 360): string | null {
+  if (!pageUrl) return null;
+  let normalized = pageUrl.trim();
+  if (!/^https?:\/\//i.test(normalized)) normalized = `https://${normalized}`;
+  try {
+    const url = new URL(normalized);
+    if (!/(^|\.)facebook\.com$|(^|\.)fb\.com$/i.test(url.hostname)) return null;
+    if (url.pathname === "/" || url.pathname === "") return null;
+    const clean = `https://www.facebook.com${url.pathname}`;
+    const params = new URLSearchParams({
+      href: clean,
+      tabs: "timeline",
+      width: String(width),
+      height: "560",
+      small_header: "true",
+      adapt_container_width: "true",
+      hide_cover: "false",
+      locale: "fr_FR",
+    });
+    return `https://www.facebook.com/plugins/page.php?${params.toString()}`;
+  } catch {
+    return null;
+  }
+}
+
 export interface RssItem {
   title: string | null;
   content: string | null;
