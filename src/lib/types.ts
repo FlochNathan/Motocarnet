@@ -14,6 +14,7 @@ export interface Profile {
   rider_weight_kg: number | null;
   rider_level: RiderLevel | null;
   is_admin: boolean;
+  apify_token: string | null;
   created_at: string;
 }
 
@@ -254,6 +255,8 @@ export interface Track {
   terrain_type_id: number | null;
   notes: string | null;
   last_fetched_at: string | null;
+  scrape_run_id: string | null;
+  scrape_started_at: string | null;
   created_at: string;
 }
 

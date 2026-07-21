@@ -1,58 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { classifyText, classifyWeekend, facebookEmbedUrl, nextWeekend, parseRss } from "./terrains";
-
-describe("facebookEmbedUrl", () => {
-  it("construit l'URL du widget pour une page Facebook", () => {
-    const url = facebookEmbedUrl("https://www.facebook.com/mxpark");
-    expect(url).toContain("facebook.com/plugins/page.php");
-    expect(url).toContain(encodeURIComponent("https://www.facebook.com/mxpark"));
-    expect(url).toContain("tabs=timeline");
-  });
-
-  it("accepte les URL sans protocole et fb.com", () => {
-    expect(facebookEmbedUrl("facebook.com/mxpark")).toContain("plugins/page.php");
-    expect(facebookEmbedUrl("https://fb.com/mxpark")).toContain("plugins/page.php");
-  });
-
-  it("rejette ce qui n'est pas Facebook ou sans page", () => {
-    expect(facebookEmbedUrl("https://instagram.com/mxpark")).toBeNull();
-    expect(facebookEmbedUrl("https://www.facebook.com/")).toBeNull();
-    expect(facebookEmbedUrl(null)).toBeNull();
-    expect(facebookEmbedUrl("pas une url du tout §§")).toBeNull();
-  });
-});
-
-const SAMPLE_RSS = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0"><channel>
-  <title>MX Park</title>
-  <item>
-    <title>Ouverture ce week-end !</title>
-    <description><![CDATA[Le terrain sera <b>ouvert</b> samedi &amp; dimanche de 9h &#224; 18h]]></description>
-    <link>https://facebook.com/mxpark/posts/1</link>
-    <pubDate>Thu, 16 Jul 2026 10:00:00 GMT</pubDate>
-  </item>
-  <item>
-    <title></title>
-    <description>Entretien de la piste cette semaine</description>
-    <link>https://facebook.com/mxpark/posts/2</link>
-    <pubDate>Mon, 13 Jul 2026 08:00:00 GMT</pubDate>
-  </item>
-</channel></rss>`;
-
-describe("parseRss", () => {
-  it("extrait les items avec nettoyage du HTML et des entités", () => {
-    const items = parseRss(SAMPLE_RSS);
-    expect(items).toHaveLength(2);
-    expect(items[0].title).toBe("Ouverture ce week-end !");
-    expect(items[0].content).toBe("Le terrain sera ouvert samedi & dimanche de 9h à 18h");
-    expect(items[0].link).toBe("https://facebook.com/mxpark/posts/1");
-    expect(items[0].published_at).toBe("2026-07-16T10:00:00.000Z");
-  });
-
-  it("retourne un tableau vide pour un contenu non RSS", () => {
-    expect(parseRss("<html>pas un flux</html>")).toEqual([]);
-  });
-});
+import { classifyText, classifyWeekend, nextWeekend } from "./terrains";
 
 describe("nextWeekend", () => {
   it("trouve le week-end à venir en semaine", () => {

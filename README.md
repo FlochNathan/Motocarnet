@@ -35,6 +35,7 @@ npm install
    - `supabase/migrations/0004_finances.sql` (catégories de dépenses de la section Finances)
    - `supabase/migrations/0005_fiches_techniques.sql` (fiches techniques par modèle)
    - `supabase/migrations/0006_terrains.sql` (terrains suivis + statut ouvert/fermé automatique)
+   - `supabase/migrations/0007_apify.sql` (récupération des annonces Facebook via Apify)
    - `supabase/seed.sql` (marques, modèles, types d'entretien, terrains, recommandations)
    - `supabase/seed-specs.sql` (fiches techniques indicatives des modèles populaires)
 3. Dans **Authentication → URL Configuration**, ajoutez `http://localhost:3000/auth/callback` aux Redirect URLs.
@@ -114,6 +115,23 @@ src/
 3. Ajoutez les variables d'environnement `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_ANON_KEY` (jamais la clé service role).
 4. Dans Supabase (**Authentication → URL Configuration**) : Site URL = `https://votre-site.netlify.app` et ajoutez `https://votre-site.netlify.app/auth/callback` aux Redirect URLs.
 5. Sur téléphone : ouvrez le site → « Ajouter à l'écran d'accueil » pour installer la PWA.
+
+## Page Terrains — annonces Facebook automatiques
+
+La page **Terrains** affiche pour chaque terrain suivi un statut **OUVERT / FERMÉ**
+pour le week-end à venir, déduit automatiquement de ses posts Facebook.
+
+Comme Meta a fermé tout accès gratuit et sans configuration au contenu des pages,
+la récupération passe par [Apify](https://apify.com) (acteur *Facebook Posts Scraper*) :
+
+1. L'utilisateur crée un compte Apify gratuit et copie son *Personal API token*
+   (Settings → Integrations) dans PitLog (écran Terrains → ⚙️).
+2. Il ajoute ensuite chaque terrain avec l'URL de sa page Facebook.
+3. PitLog lance un scraping asynchrone côté serveur, stocke les posts, et
+   classe le week-end (analyse de mots-clés français dans `src/lib/terrains.ts`).
+
+Le jeton est stocké dans `profiles.apify_token` (protégé par RLS, jamais exposé
+à d'autres utilisateurs). Aucune clé Apify n'est incluse dans le dépôt.
 
 ## Internationalisation
 
