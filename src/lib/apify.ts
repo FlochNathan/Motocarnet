@@ -14,6 +14,7 @@ export interface NormalizedPost {
   title: string | null;
   content: string | null;
   link: string;
+  image_url: string | null;
   published_at: string; // ISO
 }
 
@@ -47,6 +48,44 @@ export function apifyInput(urls: string[], resultsLimit = 20) {
   };
 }
 
+/** Donne un score de « probabilité d'image » à une clé d'objet */
+function imageKeyScore(key: string): number {
+  const k = key.toLowerCase();
+  if (/(image|photo|picture|thumbnail|thumb|media|cover|src|uri)/.test(k)) return 2;
+  if (/(attachment|preview)/.test(k)) return 1;
+  return 0;
+}
+
+/** Recherche en profondeur la première URL d'image plausible dans un item Apify */
+export function extractImage(item: unknown): string | null {
+  const looksImage = (s: string) =>
+    /^https?:\/\//i.test(s) && /(fbcdn\.net|scontent|\.(jpe?g|png|webp)(\?|$))/i.test(s);
+  const seen = new Set<object>();
+
+  function walk(value: unknown, depth: number): string | null {
+    if (depth > 6 || value == null) return null;
+    if (typeof value === "string") return looksImage(value) ? value : null;
+    if (typeof value !== "object" || seen.has(value as object)) return null;
+    seen.add(value as object);
+    if (Array.isArray(value)) {
+      for (const el of value) {
+        const r = walk(el, depth + 1);
+        if (r) return r;
+      }
+      return null;
+    }
+    const entries = Object.entries(value as Record<string, unknown>).sort(
+      (a, b) => imageKeyScore(b[0]) - imageKeyScore(a[0]),
+    );
+    for (const [, v] of entries) {
+      const r = walk(v, depth + 1);
+      if (r) return r;
+    }
+    return null;
+  }
+  return walk(item, 0);
+}
+
 /** Normalise les items renvoyés par le dataset Apify en posts exploitables */
 export function normalizeApifyPosts(items: unknown[]): NormalizedPost[] {
   const out: NormalizedPost[] = [];
@@ -59,7 +98,7 @@ export function normalizeApifyPosts(items: unknown[]): NormalizedPost[] {
     if (!published) continue;
     const content = firstString(o.text, o.message, o.postText, o.content, o.caption, o.title);
     const title = firstString(o.title);
-    out.push({ title, content, link, published_at: published });
+    out.push({ title, content, link, image_url: extractImage(o), published_at: published });
   }
   return out;
 }

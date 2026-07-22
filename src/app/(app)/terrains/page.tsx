@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Badge, Button, Card, ConfirmButton, EmptyState, ErrorText, Field, Input, PageHeader, Select, Spinner, StatusPill } from "@/components/ui";
 import { useSupabaseQuery, must } from "@/lib/hooks";
 import { classifyWeekend, nextWeekend } from "@/lib/terrains";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatRelativeDate } from "@/lib/format";
 import type { TerrainType, Track, TrackPost } from "@/lib/types";
 
 interface RefreshResult {
@@ -162,19 +162,7 @@ export default function TerrainsPage() {
                   )}
                 </div>
 
-                {verdict.post && (
-                  <a
-                    href={verdict.post.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 block rounded-xl bg-surface-2 px-3 py-2"
-                  >
-                    <p className="text-xs font-bold text-ink-dim">
-                      Annonce du {formatDate(verdict.post.published_at.slice(0, 10))} ↗
-                    </p>
-                    <p className="mt-0.5 line-clamp-3 text-sm">{verdict.post.content ?? verdict.post.title}</p>
-                  </a>
-                )}
+                {verdict.post && <HeroAnnouncement post={verdict.post} />}
 
                 <div className="mt-2.5 flex flex-wrap gap-1.5">
                   {posts.length > 0 && (
@@ -205,12 +193,9 @@ export default function TerrainsPage() {
                 </div>
 
                 {isOpen && (
-                  <div className="mt-3 flex flex-col gap-2.5 border-t border-border pt-3">
-                    {posts.slice(0, 8).map((post) => (
-                      <a key={post.id} href={post.link} target="_blank" rel="noopener noreferrer" className="block">
-                        <p className="text-xs font-bold text-ink-dim">{formatDate(post.published_at.slice(0, 10))} ↗</p>
-                        <p className="line-clamp-3 text-sm">{post.content ?? post.title ?? "(sans texte)"}</p>
-                      </a>
+                  <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
+                    {posts.slice(0, 10).map((post) => (
+                      <CompactAnnouncement key={post.id} post={post} />
                     ))}
                   </div>
                 )}
@@ -220,6 +205,64 @@ export default function TerrainsPage() {
         </div>
       )}
     </>
+  );
+}
+
+// ------------------------------------------------------------
+// Annonces (posts Facebook) — cartes illustrées
+// ------------------------------------------------------------
+
+/** Image de post qui se masque toute seule si l'URL Facebook a expiré */
+function PostImage({ src, className }: { src: string; className: string }) {
+  const [ok, setOk] = useState(true);
+  if (!ok) return null;
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={src} alt="" loading="lazy" onError={() => setOk(false)} className={className} />;
+}
+
+/** Annonce mise en avant (post décisif du week-end) */
+function HeroAnnouncement({ post }: { post: TrackPost }) {
+  return (
+    <a
+      href={post.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-2.5 block overflow-hidden rounded-2xl border border-border bg-surface-2"
+    >
+      {post.image_url && <PostImage src={post.image_url} className="h-36 w-full object-cover" />}
+      <div className="p-3">
+        <div className="mb-1 flex items-center gap-1.5 text-xs font-bold text-ink-dim">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#1877f2] text-[9px] text-white" aria-hidden>f</span>
+          Annonce Facebook • {formatRelativeDate(post.published_at)}
+          <span className="ml-auto">Ouvrir ↗</span>
+        </div>
+        {(post.content || post.title) && (
+          <p className="line-clamp-4 whitespace-pre-line text-sm leading-relaxed">{post.content ?? post.title}</p>
+        )}
+      </div>
+    </a>
+  );
+}
+
+/** Annonce compacte (liste des posts récents) */
+function CompactAnnouncement({ post }: { post: TrackPost }) {
+  return (
+    <a
+      href={post.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex gap-3 rounded-xl p-1.5 hover:bg-surface-2"
+    >
+      {post.image_url ? (
+        <PostImage src={post.image_url} className="h-14 w-14 shrink-0 rounded-lg object-cover" />
+      ) : (
+        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-lg" aria-hidden>📝</span>
+      )}
+      <div className="min-w-0 flex-1">
+        <p className="text-xs font-bold text-ink-dim">{formatRelativeDate(post.published_at)} ↗</p>
+        <p className="line-clamp-2 text-sm leading-snug">{post.content ?? post.title ?? "(sans texte)"}</p>
+      </div>
+    </a>
   );
 }
 

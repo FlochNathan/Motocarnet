@@ -267,6 +267,7 @@ export interface TrackPost {
   title: string | null;
   content: string | null;
   link: string;
+  image_url: string | null;
   published_at: string;
   created_at: string;
 }

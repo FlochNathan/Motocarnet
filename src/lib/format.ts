@@ -23,6 +23,21 @@ export function formatDate(iso: string | null | undefined): string {
   return d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
 }
 
+/** « aujourd'hui », « hier », « il y a 3 j », sinon date courte */
+export function formatRelativeDate(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  const startOfDay = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const days = Math.round((startOfDay(new Date()) - startOfDay(d)) / 86400000);
+  if (days <= 0) return "aujourd'hui";
+  if (days === 1) return "hier";
+  if (days < 7) return `il y a ${days} j`;
+  if (days < 14) return "il y a 1 sem.";
+  if (days < 31) return `il y a ${Math.floor(days / 7)} sem.`;
+  return formatDate(iso.slice(0, 10));
+}
+
 export function formatEuro(amount: number): string {
   return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(amount);
 }

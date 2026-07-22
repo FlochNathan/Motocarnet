@@ -135,6 +135,7 @@ async function ingestPosts(
       title: p.title,
       content: p.content,
       link: p.link,
+      image_url: p.image_url,
       published_at: p.published_at,
     })),
     { onConflict: "track_id,link", ignoreDuplicates: true },

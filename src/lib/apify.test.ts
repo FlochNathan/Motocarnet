@@ -1,5 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { apifyInput, normalizeApifyPosts, toIso } from "./apify";
+import { apifyInput, extractImage, normalizeApifyPosts, toIso } from "./apify";
+
+describe("extractImage", () => {
+  it("trouve une image via un champ direct", () => {
+    expect(extractImage({ imageUrl: "https://scontent.xx.fbcdn.net/v/photo.jpg" })).toBe(
+      "https://scontent.xx.fbcdn.net/v/photo.jpg",
+    );
+  });
+  it("trouve une image dans une structure imbriquée (media)", () => {
+    const item = { text: "x", media: [{ photo_image: { uri: "https://scontent.fbcdn.net/a.png" } }] };
+    expect(extractImage(item)).toBe("https://scontent.fbcdn.net/a.png");
+  });
+  it("ignore les URL non-image", () => {
+    expect(extractImage({ url: "https://facebook.com/mx/posts/1", text: "hello" })).toBeNull();
+  });
+});
 
 describe("toIso", () => {
   it("accepte les chaînes ISO", () => {
@@ -33,7 +48,7 @@ describe("normalizeApifyPosts", () => {
       { text: "Ouvert dimanche !", url: "https://facebook.com/mx/posts/1", time: "2026-07-16T10:00:00.000Z" },
     ]);
     expect(posts).toEqual([
-      { title: null, content: "Ouvert dimanche !", link: "https://facebook.com/mx/posts/1", published_at: "2026-07-16T10:00:00.000Z" },
+      { title: null, content: "Ouvert dimanche !", link: "https://facebook.com/mx/posts/1", image_url: null, published_at: "2026-07-16T10:00:00.000Z" },
     ]);
   });
 
