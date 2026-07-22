@@ -1,6 +1,6 @@
 // Service worker MotoCarnet — cache légère « network-first » pour les pages,
 // « cache-first » pour les ressources statiques.
-const CACHE = "pitlog-v2";
+const CACHE = "mxvision-v3";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();

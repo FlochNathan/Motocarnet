@@ -1,12 +1,12 @@
 {
-  "name": "PitLog — Carnet du pilote motocross",
-  "short_name": "PitLog",
-  "description": "Garage virtuel, heures moteur, entretiens, réglages de suspensions et finances de saison.",
+  "name": "MXVision — L'app premium du pilote motocross",
+  "short_name": "MXVision",
+  "description": "Garage, entretiens, réglages de suspensions, finances de saison et terrains.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#fdf1ea",
-  "theme_color": "#fdf1ea",
+  "background_color": "#f8f8f8",
+  "theme_color": "#f8f8f8",
   "lang": "fr",
   "icons": [
     { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },

@@ -3,10 +3,10 @@ import "./globals.css";
 import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
-  title: { default: "PitLog", template: "%s — PitLog" },
-  description: "Carnet numérique du pilote motocross : garage, heures moteur, entretiens, réglages de suspensions et finances.",
+  title: { default: "MXVision", template: "%s — MXVision" },
+  description: "MXVision — l'application premium du pilote motocross : garage, entretiens, réglages, finances et terrains.",
   manifest: "/manifest.webmanifest",
-  appleWebApp: { capable: true, title: "PitLog", statusBarStyle: "black-translucent" },
+  appleWebApp: { capable: true, title: "MXVision", statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {
@@ -14,8 +14,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#171210" },
-    { media: "(prefers-color-scheme: light)", color: "#fdf1ea" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b0b0c" },
+    { media: "(prefers-color-scheme: light)", color: "#f8f8f8" },
   ],
 };
 

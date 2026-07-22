@@ -11,19 +11,20 @@ import Link from "next/link";
 // ------------------------------------------------------------
 // Boutons
 // ------------------------------------------------------------
-type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
+type ButtonVariant = "primary" | "gold" | "secondary" | "danger" | "ghost";
 
 const btnBase =
-  "inline-flex items-center justify-center gap-2 rounded-2xl font-semibold select-none " +
-  "active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none " +
+  "inline-flex items-center justify-center gap-2 rounded-[14px] font-semibold select-none duration-[250ms] " +
+  "active:scale-[0.985] disabled:opacity-50 disabled:pointer-events-none " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg";
 const btnVariants: Record<ButtonVariant, string> = {
-  primary:
-    "text-accent-contrast bg-gradient-to-b from-accent to-accent-strong shadow-[var(--shadow-btn)] hover:brightness-105",
-  secondary:
-    "bg-surface text-ink border border-border shadow-[var(--shadow-card)] hover:border-ink-dim/40 hover:bg-surface-2/60",
-  danger: "bg-danger/10 text-danger border border-danger/20 hover:bg-danger/15",
-  ghost: "text-accent hover:bg-accent-soft",
+  // Action principale : noir premium (Apple / Vercel / Linear)
+  primary: "text-white bg-ink hover:bg-black shadow-[var(--shadow-btn)]",
+  // Premium / mise en avant : or
+  gold: "text-accent-contrast bg-accent hover:bg-accent-strong shadow-[var(--shadow-gold)]",
+  secondary: "bg-surface text-ink border border-border shadow-[var(--shadow-card)] hover:border-ink-dim/40 hover:bg-surface-2/50",
+  danger: "bg-danger/10 text-danger border border-danger/15 hover:bg-danger/15",
+  ghost: "text-ink hover:bg-surface-2",
 };
 const btnSizes = {
   lg: "min-h-14 px-6 text-[1.0625rem] w-full",
@@ -65,7 +66,7 @@ export function ButtonLink({
 // ------------------------------------------------------------
 export function Card({ className = "", children }: { className?: string; children: ReactNode }) {
   return (
-    <div className={`rounded-card bg-surface border border-border/80 p-4 shadow-[var(--shadow-card)] ${className}`}>
+    <div className={`rounded-[18px] bg-surface border border-border p-4 shadow-[var(--shadow-card)] ${className}`}>
       {children}
     </div>
   );
@@ -104,9 +105,9 @@ export function Field({ label, error, hint, children }: { label: string; error?:
 }
 
 const inputCls =
-  "w-full min-h-12 rounded-[var(--radius-field)] border border-border bg-surface px-4 text-base text-ink " +
-  "placeholder:text-ink-dim/50 shadow-[0_1px_2px_rgb(16_24_40/0.04)] " +
-  "hover:border-ink-dim/35 focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent/15";
+  "w-full min-h-12 rounded-[14px] border border-border bg-surface px-4 text-base text-ink " +
+  "placeholder:text-ink-dim/50 " +
+  "hover:border-ink-dim/30 focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent/15";
 
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={`${inputCls} ${props.className ?? ""}`} />;

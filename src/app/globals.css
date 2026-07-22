@@ -4,16 +4,16 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Palette MotoCarnet — crème chaleureux, corail motocross, violet profond */
-  --color-accent: #ec6c3f;
-  --color-accent-strong: #de5a2c;
+  /* ===== MXVision — identité premium noir / blanc / or ===== */
+  --color-accent: #c9a14a;          /* or premium */
+  --color-accent-strong: #b8912f;
   --color-accent-soft: var(--mc-accent-soft);
-  --color-accent-contrast: #ffffff;
+  --color-accent-contrast: #111111; /* texte sombre sur l'or */
 
-  /* Accent secondaire : violet (cartes héro, bouton flottant) */
-  --color-violet: #8b6fc4;
-  --color-violet-strong: #6d51a6;
-  --color-violet-deep: #3b2a63;
+  /* Accent secondaire neutre (graphite) pour les données à deux tons */
+  --color-violet: #4b4b4b;
+  --color-violet-strong: #333333;
+  --color-violet-deep: #111111;
 
   --color-bg: var(--mc-bg);
   --color-surface: var(--mc-surface);
@@ -22,40 +22,42 @@
   --color-ink: var(--mc-ink);
   --color-ink-dim: var(--mc-ink-dim);
 
-  --color-ok: #16a34a;
-  --color-warn: #d97706;
-  --color-danger: #dc2626;
+  /* Statuts — désaturés pour rester premium (or = important) */
+  --color-ok: #3f9a6a;
+  --color-warn: #b8912f;
+  --color-danger: #b23b3b;
 
-  --radius-card: 1.5rem;
-  --radius-field: 1rem;
+  --radius-card: 18px;
+  --radius-field: 14px;
 
-  --shadow-card: 0 2px 6px rgb(120 72 45 / 0.05), 0 6px 20px rgb(120 72 45 / 0.06);
-  --shadow-float: 0 6px 16px rgb(80 48 30 / 0.10), 0 16px 40px rgb(80 48 30 / 0.12);
-  --shadow-btn: 0 2px 4px rgb(236 108 63 / 0.30), 0 6px 16px rgb(236 108 63 / 0.28);
-  --shadow-fab: 0 4px 10px rgb(59 42 99 / 0.35), 0 10px 26px rgb(59 42 99 / 0.30);
+  /* Ombres très légères, style Apple */
+  --shadow-card: 0 1px 2px rgb(17 17 17 / 0.04), 0 8px 24px rgb(17 17 17 / 0.05);
+  --shadow-float: 0 4px 14px rgb(17 17 17 / 0.08), 0 18px 48px rgb(17 17 17 / 0.12);
+  --shadow-btn: 0 1px 2px rgb(17 17 17 / 0.12), 0 8px 20px rgb(17 17 17 / 0.14);
+  --shadow-gold: 0 2px 6px rgb(201 161 74 / 0.28), 0 10px 26px rgb(201 161 74 / 0.22);
 }
 
 :root {
-  /* Thème clair (par défaut) : crème pêche, cartes blanches, encre brun foncé */
-  --mc-bg: #fdf1ea;
-  --mc-surface: #fffdfb;
-  --mc-surface-2: #f9e7dd;
-  --mc-border: #f1ddd0;
-  --mc-ink: #362c28;
-  --mc-ink-dim: #94807a;
-  --mc-accent-soft: #fce4d8;
+  /* Thème clair premium (par défaut) */
+  --mc-bg: #f8f8f8;
+  --mc-surface: #ffffff;
+  --mc-surface-2: #efefef;
+  --mc-border: #eaeaea;
+  --mc-ink: #111111;
+  --mc-ink-dim: #777777;
+  --mc-accent-soft: #f4ecdb;
   color-scheme: light;
 }
 
 .dark {
-  /* Thème sombre : brun chaud profond, ambiance paddock au coucher du soleil */
-  --mc-bg: #171210;
-  --mc-surface: #221c18;
-  --mc-surface-2: #2e2620;
-  --mc-border: #3d332c;
-  --mc-ink: #f7f1ed;
-  --mc-ink-dim: #a5968e;
-  --mc-accent-soft: #3a2a1f;
+  /* Thème sombre premium — near-black, or conservé */
+  --mc-bg: #0b0b0c;
+  --mc-surface: #151517;
+  --mc-surface-2: #1f1f22;
+  --mc-border: #2a2a2e;
+  --mc-ink: #f5f5f5;
+  --mc-ink-dim: #8a8a8f;
+  --mc-accent-soft: #2a2418;
   color-scheme: dark;
 }
 
@@ -70,49 +72,57 @@ html {
 body {
   background: var(--mc-bg);
   color: var(--mc-ink);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-family: "Inter", "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "ss01";
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  letter-spacing: -0.011em;
-  /* Réserve la place de la barre de navigation inférieure + zone iPhone */
+  letter-spacing: -0.012em;
   --bottom-nav-height: 4.75rem;
 }
 
 h1, h2, h3 {
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
 }
 
-/* Curseurs (sliders de ressenti) assez gros pour être utilisés avec des gants */
+/* Curseurs assez gros pour être utilisés avec des gants */
 input[type="range"] {
   accent-color: var(--color-accent);
   height: 2.75rem;
   width: 100%;
 }
 
-/* Champs date/heure natifs lisibles en sombre */
 input::-webkit-calendar-picker-indicator {
   filter: var(--picker-filter, none);
-  opacity: 0.6;
+  opacity: 0.55;
 }
 .dark input::-webkit-calendar-picker-indicator {
   --picker-filter: invert(1);
 }
 
-/* Transitions douces par défaut sur l'interactif */
+/* Transitions fluides 250ms sur tout l'interactif (brief MXVision) */
 button, a, input, select, textarea {
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease,
-    box-shadow 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease,
+    box-shadow 0.25s ease, transform 0.15s ease, opacity 0.25s ease;
 }
 
-/* Défilement doux et pas de surbrillance tactile bleue */
 * {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Rangée défilante sans barre de défilement visible (chips d'actions) */
+/* Rangée défilante sans barre visible */
 .scrollbar-none {
   scrollbar-width: none;
 }
 .scrollbar-none::-webkit-scrollbar {
   display: none;
+}
+
+/* Apparition douce des cartes (fade + slide léger) */
+@keyframes mc-fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  main > * { animation: mc-fade-up 0.35s ease both; }
 }

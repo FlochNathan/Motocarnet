@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Badge, Button, ButtonLink, Card, EmptyState, ErrorText, Field, Input, Spinner, StatusPill } from "@/components/ui";
-import Doodles, { HandUnderline } from "@/components/Doodles";
+import { Wordmark } from "@/components/Wordmark";
 import { useSupabaseQuery, must } from "@/lib/hooks";
 import { MOTO_SELECT, motoLabel } from "@/lib/moto";
 import { formatDate, formatHours, formatMinutes, todayISO } from "@/lib/format";
@@ -75,7 +75,6 @@ export default function AccueilPage() {
   if (!primary) {
     return (
       <div className="relative">
-        <Doodles />
         <Greeting name={firstName} />
         <EmptyState
           icon="🏍️"
@@ -153,7 +152,6 @@ export default function AccueilPage() {
 
   return (
     <div className="relative">
-      <Doodles />
       <Greeting name={firstName} />
 
       {/* Bandeau vidange — seule alerte affichée en bandeau */}
@@ -185,12 +183,12 @@ export default function AccueilPage() {
         </Link>
       )}
 
-      {/* Moto principale — carte héro violette */}
+      {/* Moto principale — carte héro noire premium */}
       <Link href={`/garage/${primary.id}`} className="block">
-        <div className="relative overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-violet to-violet-strong p-5 text-white shadow-[var(--shadow-float)]">
-          <div className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full bg-white/10" aria-hidden />
-          <div className="pointer-events-none absolute -bottom-16 -left-8 h-36 w-36 rounded-full bg-white/5" aria-hidden />
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/60">Moto principale</p>
+        <div className="relative overflow-hidden rounded-[18px] bg-gradient-to-br from-[#1c1c1e] to-[#0c0c0d] p-5 text-white shadow-[var(--shadow-float)]">
+          <div className="pointer-events-none absolute -right-12 -top-14 h-44 w-44 rounded-full bg-accent/15 blur-2xl" aria-hidden />
+          <div className="pointer-events-none absolute -bottom-16 -left-8 h-36 w-36 rounded-full bg-white/[0.03]" aria-hidden />
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Moto principale</p>
           <p className="mt-1 text-xl font-extrabold tracking-tight">{motoLabel(primary)}</p>
           <div className="mt-4 flex items-end justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -230,11 +228,11 @@ export default function AccueilPage() {
       {/* Actions rapides — chips à pastille d'icône */}
       <div className="scrollbar-none -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1">
         <ActionChip href="/sessions/nouvelle" icon="🏁" label="Session" tint="bg-accent-soft" />
-        <ActionChip href="/terrains" icon="🚩" label="Terrains" tint="bg-danger/10" />
-        <ActionChip href="/entretiens/nouveau" icon="🔧" label="Entretien" tint="bg-violet/15" />
-        <ActionChip href="/suspensions/nouveau" icon="🎚️" label="Réglage" tint="bg-ok/10" />
-        <ActionChip href="/finances" icon="💶" label="Finances" tint="bg-violet/10" />
-        <ActionChip href="/stats" icon="📊" label="Stats" tint="bg-warn/10" />
+        <ActionChip href="/terrains" icon="🚩" label="Terrains" tint="bg-surface-2" />
+        <ActionChip href="/entretiens/nouveau" icon="🔧" label="Entretien" tint="bg-surface-2" />
+        <ActionChip href="/suspensions/nouveau" icon="🎚️" label="Réglage" tint="bg-surface-2" />
+        <ActionChip href="/finances" icon="💶" label="Finances" tint="bg-surface-2" />
+        <ActionChip href="/stats" icon="📊" label="Stats" tint="bg-surface-2" />
       </div>
 
       {/* Guide de démarrage — disparaît une fois les 3 étapes faites (ou masqué) */}
@@ -417,24 +415,21 @@ function HoursEditor({ moto, onClose, onSaved }: { moto: MotorcycleWithModel; on
 }
 
 function Greeting({ name }: { name: string }) {
-  const initial = (name[0] ?? "P").toUpperCase();
+  const initial = (name[0] ?? "M").toUpperCase();
   return (
-    <header className="pb-5 pt-3">
-      <div className="mb-4 flex items-center justify-between">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/logo-banner.png" alt="PitLog" className="h-10 w-auto rounded-xl" />
+    <header className="pb-6 pt-3">
+      <div className="mb-6 flex items-center justify-between">
+        <Wordmark />
         <Link
           href="/profil"
           aria-label="Mon profil"
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-violet/20 text-lg font-black text-violet-strong"
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-ink text-lg font-black text-white"
         >
           {initial}
         </Link>
       </div>
-      <h1 className="text-[2rem] font-extrabold leading-[1.15] tracking-tight">
-        Salut {name},<br />prêt à rouler ?
-      </h1>
-      <HandUnderline className="mt-2" />
+      <p className="text-sm font-semibold uppercase tracking-[0.14em] text-accent">Bonjour</p>
+      <h1 className="mt-1 text-[2.1rem] font-extrabold leading-[1.1] tracking-tight">{name}</h1>
     </header>
   );
 }

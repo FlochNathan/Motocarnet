@@ -68,7 +68,7 @@ export default function BottomNav() {
         <Link
           href="/sessions/nouvelle"
           aria-label="Ajouter une session"
-          className="fixed right-4 z-40 flex h-14 w-14 items-center justify-center rounded-[1.25rem] bg-violet-deep text-white shadow-[var(--shadow-fab)] active:scale-95"
+          className="fixed right-4 z-40 flex h-14 w-14 items-center justify-center rounded-[18px] bg-ink text-white shadow-[var(--shadow-float)] active:scale-95"
           style={{ bottom: "calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 0.75rem)" }}
         >
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
@@ -77,7 +77,7 @@ export default function BottomNav() {
 
       <nav
         aria-label="Navigation principale"
-        className="fixed inset-x-0 bottom-0 z-30 bg-surface/90 backdrop-blur-xl pb-[env(safe-area-inset-bottom)] shadow-[0_-6px_24px_rgb(120_72_45/0.08)]"
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface/85 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]"
       >
         <div className="mx-auto flex h-[4.25rem] max-w-lg items-stretch px-1">
           {ITEMS.map((item) => {
