@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { Badge, Button, ButtonLink, Card, EmptyState, ErrorText, Field, Input, Spinner, StatusPill } from "@/components/ui";
+import { Button, ButtonLink, Card, EmptyState, ErrorText, Field, Input, Spinner, StatusPill } from "@/components/ui";
 import { Wordmark } from "@/components/Wordmark";
 import { useSupabaseQuery, must } from "@/lib/hooks";
 import { MOTO_SELECT, motoLabel } from "@/lib/moto";
-import { formatDate, formatHours, formatMinutes, todayISO } from "@/lib/format";
+import { formatDate, formatHours, todayISO } from "@/lib/format";
 import { buildMaintenanceOverview, urgentItems } from "@/lib/overview";
 import { computeReminderStatus, DUE_STATUS_LABELS, type DueStatus } from "@/lib/maintenance";
 import type {
@@ -41,11 +41,7 @@ interface UrgentEntry {
 
 export default function AccueilPage() {
   const [editHours, setEditHours] = useState(false);
-  const [hideStart, setHideStart] = useState(true);
 
-  useEffect(() => {
-    setHideStart(localStorage.getItem("mc-hide-start") === "1");
-  }, []);
   const { data, loading, reload } = useSupabaseQuery<DashboardData>(async (sb) => {
     const [profile, motos, sessions, types, schedules, records, reminders, setups, terrains] = await Promise.all([
       sb.from("profiles").select("display_name").single(),
@@ -154,196 +150,95 @@ export default function AccueilPage() {
     <div className="relative">
       <Greeting name={firstName} />
 
-      {/* Bandeau vidange — seule alerte affichée en bandeau */}
+      {/* Alerte vidange — ligne discrète, uniquement si nécessaire */}
       {vidangeAlert && (
         <Link
           href={`/entretiens/nouveau?moto=${vidangeAlert.moto.id}&type=${data.types.find((t) => t.name === "Vidange moteur")?.id ?? ""}`}
-          className={`mb-3 flex items-center gap-3 rounded-card border px-4 py-3 shadow-[var(--shadow-card)] ${
-            vidangeAlert.status === "overdue"
-              ? "border-danger/25 bg-danger/10"
-              : "border-warn/25 bg-warn/10"
-          }`}
+          className="mb-6 flex items-center gap-3 rounded-[18px] border border-border bg-surface px-5 py-4"
         >
-          <span className="text-2xl" aria-hidden>🛢️</span>
+          <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${vidangeAlert.status === "overdue" ? "bg-danger" : "bg-accent"}`} aria-hidden />
           <div className="min-w-0 flex-1">
-            <p className={`font-extrabold ${vidangeAlert.status === "overdue" ? "text-danger" : "text-warn"}`}>
-              {vidangeAlert.status === "overdue" ? "Vidange dépassée !" : "Vidange bientôt à faire"}
+            <p className="font-semibold">
+              {vidangeAlert.status === "overdue" ? "Vidange dépassée" : "Vidange bientôt à faire"}
             </p>
-            <p className="truncate text-xs text-ink-dim">
-              {motoLabel(vidangeAlert.moto)}
+            <p className="truncate text-[13px] text-ink-dim">
               {vidangeAlert.hoursRemaining !== null &&
                 (vidangeAlert.hoursRemaining >= 0
-                  ? ` • reste ${formatHours(vidangeAlert.hoursRemaining)}`
-                  : ` • dépassée de ${formatHours(-vidangeAlert.hoursRemaining)}`)}
+                  ? `reste ${formatHours(vidangeAlert.hoursRemaining)}`
+                  : `dépassée de ${formatHours(-vidangeAlert.hoursRemaining)}`)}
             </p>
           </div>
-          <span className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold text-white ${vidangeAlert.status === "overdue" ? "bg-danger" : "bg-warn"}`}>
-            Enregistrer
-          </span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-ink-dim"><path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
       )}
 
-      {/* Moto principale — carte héro noire premium */}
+      {/* Moto principale — bloc noir premium, épuré */}
       <Link href={`/garage/${primary.id}`} className="block">
-        <div className="relative overflow-hidden rounded-[18px] bg-gradient-to-br from-[#1c1c1e] to-[#0c0c0d] p-5 text-white shadow-[var(--shadow-float)]">
-          <div className="pointer-events-none absolute -right-12 -top-14 h-44 w-44 rounded-full bg-accent/15 blur-2xl" aria-hidden />
-          <div className="pointer-events-none absolute -bottom-16 -left-8 h-36 w-36 rounded-full bg-white/[0.03]" aria-hidden />
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Moto principale</p>
-          <p className="mt-1 text-xl font-extrabold tracking-tight">{motoLabel(primary)}</p>
-          <div className="mt-4 flex items-end justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                aria-label="Modifier le compteur d'heures"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setEditHours(true);
-                }}
-                className="relative flex h-[4.5rem] w-[4.5rem] flex-col items-center justify-center rounded-full border-[3px] border-white/30 bg-white/10 active:scale-95"
-              >
-                <span className="text-lg font-black leading-none">{formatHours(primary.current_hours)}</span>
-                <span className="text-[9px] text-white/60">compteur</span>
-                <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-accent text-white shadow" aria-hidden>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" /></svg>
-                </span>
-              </button>
-              {lastSession && (
-                <div className="flex h-[4.5rem] w-[4.5rem] flex-col items-center justify-center rounded-full border-[3px] border-accent/70 bg-white/10">
-                  <span className="text-lg font-black leading-none">{formatMinutes(lastSession.duration_minutes)}</span>
-                  <span className="text-[9px] text-white/60">dernière</span>
-                </div>
-              )}
-            </div>
-            <div className="pb-1 text-right">
-              {lastSession && <p className="text-xs text-white/60">{formatDate(lastSession.session_date)}</p>}
-              <p className="mt-1 inline-flex items-center gap-1 text-sm font-bold">
-                Voir la fiche
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+        <div className="rounded-[18px] bg-[#111112] p-6 text-white">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/40">Moto principale</p>
+          <p className="mt-2 text-2xl font-bold tracking-tight">{motoLabel(primary)}</p>
+          <div className="mt-8 flex items-end justify-between">
+            <button
+              type="button"
+              aria-label="Modifier le compteur d'heures"
+              onClick={(e) => {
+                e.preventDefault();
+                setEditHours(true);
+              }}
+              className="text-left"
+            >
+              <span className="text-4xl font-bold tracking-tight text-accent">{formatHours(primary.current_hours)}</span>
+              <span className="mt-1 block text-[13px] text-white/40">compteur moteur · modifier</span>
+            </button>
+            {lastSession && (
+              <p className="pb-1 text-right text-[13px] text-white/40">
+                dernière sortie<br />
+                <span className="text-white/70">{formatDate(lastSession.session_date)}</span>
               </p>
-            </div>
+            )}
           </div>
         </div>
       </Link>
 
-      {/* Actions rapides — chips à pastille d'icône */}
-      <div className="scrollbar-none -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1">
-        <ActionChip href="/sessions/nouvelle" icon="🏁" label="Session" tint="bg-accent-soft" />
-        <ActionChip href="/terrains" icon="🚩" label="Terrains" tint="bg-surface-2" />
-        <ActionChip href="/entretiens/nouveau" icon="🔧" label="Entretien" tint="bg-surface-2" />
-        <ActionChip href="/suspensions/nouveau" icon="🎚️" label="Réglage" tint="bg-surface-2" />
-        <ActionChip href="/finances" icon="💶" label="Finances" tint="bg-surface-2" />
-        <ActionChip href="/stats" icon="📊" label="Stats" tint="bg-surface-2" />
-      </div>
-
-      {/* Guide de démarrage — disparaît une fois les 3 étapes faites (ou masqué) */}
-      {!hideStart && (() => {
-        const steps = [
-          { done: data.schedules.length > 0, label: "Choisir quoi surveiller (ex : vidange toutes les 5 h)", href: `/garage/${primary.id}/echeances` },
-          { done: data.sessions.length > 0, label: "Enregistrer une première session de roulage", href: "/sessions/nouvelle" },
-          { done: data.lastSetup !== null, label: "Noter vos réglages de suspensions actuels", href: "/suspensions/nouveau" },
-        ];
-        if (steps.every((s) => s.done)) return null;
-        return (
-          <Card className="mt-4">
-            <div className="flex items-center justify-between">
-              <h2 className="font-extrabold">🚀 Bien démarrer</h2>
-              <button
-                onClick={() => {
-                  localStorage.setItem("mc-hide-start", "1");
-                  setHideStart(true);
-                }}
-                className="min-h-11 px-2 text-sm font-semibold text-ink-dim"
-              >
-                Masquer
-              </button>
-            </div>
-            <div className="mt-1 flex flex-col">
-              {steps.map((step) => (
-                <Link key={step.href} href={step.href} className="flex min-h-12 items-center gap-3 border-b border-border py-2 last:border-0">
-                  <span
-                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-black ${
-                      step.done ? "bg-ok/15 text-ok" : "border-2 border-border text-transparent"
-                    }`}
-                    aria-hidden
-                  >
-                    ✓
-                  </span>
-                  <span className={`text-sm font-semibold ${step.done ? "text-ink-dim line-through" : ""}`}>{step.label}</span>
-                </Link>
-              ))}
-            </div>
-          </Card>
-        );
-      })()}
-
-      {/* Entretiens urgents */}
-      <section className="mt-6">
-        <div className="mb-2.5 flex items-baseline justify-between">
-          <h2 className="text-lg font-extrabold">À prévoir</h2>
-          <Link href="/entretiens" className="text-sm font-bold text-accent-strong">Tout voir</Link>
+      {/* À prévoir — liste épurée façon Linear */}
+      <section className="mt-10">
+        <div className="mb-3 flex items-baseline justify-between">
+          <h2 className="text-[13px] font-semibold uppercase tracking-wide text-ink-dim">À prévoir</h2>
+          <Link href="/entretiens" className="text-[13px] font-semibold text-accent">Tout voir</Link>
         </div>
         {urgent.length === 0 ? (
-          <Card className="flex items-center gap-3">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-ok/10 text-xl" aria-hidden>✅</span>
-            <p className="text-sm font-semibold text-ink-dim">Tout est à jour. Roulez tranquille !</p>
-          </Card>
+          <p className="text-[15px] text-ink-dim">Tout est à jour.</p>
         ) : (
-          <div className="flex flex-col gap-2.5">
-            {urgent.slice(0, 4).map((entry) => (
-              <Link key={entry.key} href={entry.href}>
-                <Card className="flex items-center gap-3 py-3">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-xl" aria-hidden>
-                    {entry.icon}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-bold">{entry.title}</p>
-                    <p className="truncate text-xs text-ink-dim">{entry.subtitle}</p>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <StatusPill status={entry.status} label={DUE_STATUS_LABELS[entry.status]} />
-                    {entry.detail && <p className="mt-1 text-xs text-ink-dim">{entry.detail}</p>}
-                  </div>
-                </Card>
+          <Card className="divide-y divide-border p-0">
+            {urgent.slice(0, 3).map((entry) => (
+              <Link key={entry.key} href={entry.href} className="flex items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-surface-2/50">
+                <div className="min-w-0">
+                  <p className="truncate font-medium">{entry.title}</p>
+                  <p className="truncate text-[13px] text-ink-dim">{entry.subtitle}</p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <StatusPill status={entry.status} label={DUE_STATUS_LABELS[entry.status]} />
+                  {entry.detail && <p className="mt-1 text-[12px] text-ink-dim">{entry.detail}</p>}
+                </div>
               </Link>
             ))}
-          </div>
+          </Card>
         )}
       </section>
 
-      {/* Prochaine échéance + dernier réglage */}
-      <section className="mt-6 grid grid-cols-1 gap-2.5">
-        {nextDue && (
-          <Card className="flex items-center gap-3 py-3">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet/15 text-xl" aria-hidden>📅</span>
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-ink-dim">Prochaine échéance</p>
-              <p className="truncate font-bold">{nextDue.type.name}</p>
-            </div>
-            <Badge>
-              {nextDue.due.hoursRemaining !== null
-                ? `dans ${formatHours(Math.max(0, nextDue.due.hoursRemaining))}`
-                : nextDue.due.monthsRemaining !== null
-                  ? `dans ${Math.max(0, Math.round(nextDue.due.monthsRemaining))} mois`
-                  : ""}
-            </Badge>
-          </Card>
-        )}
-        {data.lastSetup && (
-          <Link href={`/suspensions/${data.lastSetup.id}`}>
-            <Card className="flex items-center gap-3 py-3">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-warn/10 text-xl" aria-hidden>🎚️</span>
-              <div className="min-w-0 flex-1">
-                <p className="text-[11px] font-bold uppercase tracking-wide text-ink-dim">Dernier réglage</p>
-                <p className="truncate font-bold">
-                  {data.lastSetup.is_favorite && "⭐ "}
-                  {data.lastSetup.name}
-                </p>
-              </div>
-              <Badge>{terrainName(data.lastSetup.terrain_type_id) ?? "Terrain libre"}</Badge>
-            </Card>
+      {/* Dernier réglage — une ligne discrète */}
+      {data.lastSetup && (
+        <section className="mt-10">
+          <h2 className="mb-3 text-[13px] font-semibold uppercase tracking-wide text-ink-dim">Dernier réglage</h2>
+          <Link href={`/suspensions/${data.lastSetup.id}`} className="flex items-center justify-between gap-3 rounded-[18px] border border-border bg-surface px-5 py-4 transition-colors hover:bg-surface-2/50">
+            <p className="truncate font-medium">
+              {data.lastSetup.is_favorite && "⭐ "}
+              {data.lastSetup.name}
+            </p>
+            <span className="shrink-0 text-[13px] text-ink-dim">{terrainName(data.lastSetup.terrain_type_id) ?? "Terrain libre"}</span>
           </Link>
-        )}
-      </section>
+        </section>
+      )}
 
       {editHours && (
         <HoursEditor
@@ -434,14 +329,3 @@ function Greeting({ name }: { name: string }) {
   );
 }
 
-function ActionChip({ href, icon, label, tint }: { href: string; icon: string; label: string; tint: string }) {
-  return (
-    <Link
-      href={href}
-      className="flex min-h-12 shrink-0 items-center gap-2 rounded-full bg-surface py-1.5 pl-2 pr-4 font-bold shadow-[var(--shadow-card)]"
-    >
-      <span className={`flex h-9 w-9 items-center justify-center rounded-full text-base ${tint}`} aria-hidden>{icon}</span>
-      <span className="text-sm">{label}</span>
-    </Link>
-  );
-}

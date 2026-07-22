@@ -14,8 +14,8 @@ import Link from "next/link";
 type ButtonVariant = "primary" | "gold" | "secondary" | "danger" | "ghost";
 
 const btnBase =
-  "inline-flex items-center justify-center gap-2 rounded-[14px] font-semibold select-none duration-[250ms] " +
-  "active:scale-[0.985] disabled:opacity-50 disabled:pointer-events-none " +
+  "inline-flex items-center justify-center gap-2 rounded-[14px] font-semibold select-none duration-200 " +
+  "active:scale-[0.985] disabled:opacity-40 disabled:pointer-events-none " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg";
 const btnVariants: Record<ButtonVariant, string> = {
   // Action principale : noir premium (Apple / Vercel / Linear)
@@ -66,7 +66,7 @@ export function ButtonLink({
 // ------------------------------------------------------------
 export function Card({ className = "", children }: { className?: string; children: ReactNode }) {
   return (
-    <div className={`rounded-[18px] bg-surface border border-border p-4 shadow-[var(--shadow-card)] ${className}`}>
+    <div className={`rounded-[18px] bg-surface border border-border p-5 shadow-[var(--shadow-card)] ${className}`}>
       {children}
     </div>
   );
@@ -208,16 +208,11 @@ export function Stars({ value, onChange, label }: { value: number | null; onChan
 // Statuts et badges
 // ------------------------------------------------------------
 export function StatusPill({ status, label }: { status: "ok" | "soon" | "overdue" | "none"; label: string }) {
-  const cls = {
-    ok: "bg-ok/10 text-ok",
-    soon: "bg-warn/10 text-warn",
-    overdue: "bg-danger/10 text-danger",
-    none: "bg-surface-2 text-ink-dim",
-  }[status];
-  const dot = { ok: "bg-ok", soon: "bg-warn", overdue: "bg-danger", none: "bg-ink-dim/60" }[status];
+  // Minimal : un point coloré + libellé en encre secondaire, sans fond
+  const dot = { ok: "bg-ok", soon: "bg-accent", overdue: "bg-danger", none: "bg-ink-dim/40" }[status];
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.8125rem] font-bold ${cls}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+    <span className="inline-flex items-center gap-2 text-[0.8125rem] font-semibold text-ink-dim">
+      <span className={`h-2 w-2 rounded-full ${dot}`} />
       {label}
     </span>
   );
@@ -225,7 +220,7 @@ export function StatusPill({ status, label }: { status: "ok" | "soon" | "overdue
 
 export function Badge({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <span className={`inline-flex items-center rounded-full bg-surface-2 px-2.5 py-1 text-xs font-semibold text-ink-dim ${className}`}>
+    <span className={`inline-flex items-center rounded-full border border-border px-2.5 py-1 text-xs font-medium text-ink-dim ${className}`}>
       {children}
     </span>
   );
