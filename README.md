@@ -36,6 +36,8 @@ npm install
    - `supabase/migrations/0005_fiches_techniques.sql` (fiches techniques par modèle)
    - `supabase/migrations/0006_terrains.sql` (terrains suivis + statut ouvert/fermé automatique)
    - `supabase/migrations/0007_apify.sql` (récupération des annonces Facebook via Apify)
+   - `supabase/migrations/0008_post_image.sql` (image des annonces)
+   - `supabase/migrations/0009_catalogue_terrains.sql` (catalogue de terrains par région)
    - `supabase/seed.sql` (marques, modèles, types d'entretien, terrains, recommandations)
    - `supabase/seed-specs.sql` (fiches techniques indicatives des modèles populaires)
 3. Dans **Authentication → URL Configuration**, ajoutez `http://localhost:3000/auth/callback` aux Redirect URLs.
@@ -116,22 +118,26 @@ src/
 4. Dans Supabase (**Authentication → URL Configuration**) : Site URL = `https://votre-site.netlify.app` et ajoutez `https://votre-site.netlify.app/auth/callback` aux Redirect URLs.
 5. Sur téléphone : ouvrez le site → « Ajouter à l'écran d'accueil » pour installer la PWA.
 
-## Page Terrains — annonces Facebook automatiques
+## Page Terrains — annuaire par région
 
-La page **Terrains** affiche pour chaque terrain suivi un statut **OUVERT / FERMÉ**
-pour le week-end à venir, déduit automatiquement de ses posts Facebook.
+La page **Terrains** propose un **catalogue de terrains organisé par région**.
+L'utilisateur choisit sa région (ex : Hauts-de-France) et voit tous ses terrains
+avec un statut **OUVERT / FERMÉ** pour le week-end à venir, déduit automatiquement
+de leurs posts Facebook. Aucune configuration côté utilisateur.
 
-Comme Meta a fermé tout accès gratuit et sans configuration au contenu des pages,
-la récupération passe par [Apify](https://apify.com) (acteur *Facebook Posts Scraper*) :
+Fonctionnement :
 
-1. L'utilisateur crée un compte Apify gratuit et copie son *Personal API token*
-   (Settings → Integrations) dans PitLog (écran Terrains → ⚙️).
-2. Il ajoute ensuite chaque terrain avec l'URL de sa page Facebook.
-3. PitLog lance un scraping asynchrone côté serveur, stocke les posts, et
-   classe le week-end (analyse de mots-clés français dans `src/lib/terrains.ts`).
+1. **L'administrateur** ajoute les terrains (région, nom, URL de la page Facebook)
+   dans **Administration → Terrains**.
+2. Le serveur récupère les annonces via [Apify](https://apify.com) (acteur
+   *Facebook Posts Scraper*) et les partage entre tous les utilisateurs. Le
+   scraping est mutualisé (une récupération toutes les 2 h par terrain).
+3. Les statuts sont classés par analyse de mots-clés français (`src/lib/terrains.ts`).
 
-Le jeton est stocké dans `profiles.apify_token` (protégé par RLS, jamais exposé
-à d'autres utilisateurs). Aucune clé Apify n'est incluse dans le dépôt.
+**Configuration requise (une seule fois)** : définir la variable d'environnement
+serveur `APIFY_TOKEN` (jeton *Personal API token* d'un compte Apify gratuit) —
+en local dans `.env.local`, et dans les variables d'environnement Netlify.
+Cette clé n'est jamais exposée au navigateur ni incluse dans le dépôt.
 
 ## Internationalisation
 

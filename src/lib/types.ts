@@ -245,25 +245,28 @@ export interface Part {
   created_at: string;
 }
 
-export interface Track {
+/** Terrain du catalogue commun (géré en admin, organisé par région) */
+export interface CatalogTrack {
   id: string;
-  user_id: string;
+  region: string;
   name: string;
   city: string | null;
   facebook_url: string | null;
-  feed_url: string | null;
   terrain_type_id: number | null;
-  notes: string | null;
+  active: boolean;
+  created_at: string;
+}
+
+export interface TrackScrape {
+  catalog_id: string;
   last_fetched_at: string | null;
   scrape_run_id: string | null;
   scrape_started_at: string | null;
-  created_at: string;
 }
 
 export interface TrackPost {
   id: string;
-  user_id: string;
-  track_id: string;
+  catalog_id: string;
   title: string | null;
   content: string | null;
   link: string;

@@ -6,26 +6,28 @@ import { useSupabaseQuery, must } from "@/lib/hooks";
 import { MAINTENANCE_CATEGORY_LABELS } from "@/lib/domain";
 import { Badge, Button, Card, ErrorText, Field, Input, PageHeader, Select, Spinner, Textarea } from "@/components/ui";
 import SpecsAdmin from "@/components/SpecsAdmin";
+import CatalogAdmin from "@/components/CatalogAdmin";
 import type {
-  Brand, MaintenanceCategory, MaintenanceType, ModelSpec, ModelWithBrand,
+  Brand, CatalogTrack, MaintenanceCategory, MaintenanceType, ModelSpec, ModelWithBrand,
   SetupRecommendation, TerrainType,
 } from "@/lib/types";
 
 const DISPLACEMENT_LABELS = ["50", "65", "85", "125", "150", "250 2T", "250 4T", "300 2T", "350 4T", "450 4T"];
 
-type Tab = "modeles" | "fiches" | "entretiens" | "terrains" | "conseils";
+type Tab = "modeles" | "fiches" | "entretiens" | "sols" | "circuits" | "conseils";
 
 export default function AdminPage() {
   const { data, loading, reload } = useSupabaseQuery(async (sb) => {
     const { data: userData } = await sb.auth.getUser();
     const profile = must(await sb.from("profiles").select("is_admin").eq("id", userData.user!.id).single()) as { is_admin: boolean };
-    const [brands, models, types, terrains, recos, specs] = await Promise.all([
+    const [brands, models, types, terrains, recos, specs, catalog] = await Promise.all([
       sb.from("motorcycle_brands").select("*").order("name"),
       sb.from("motorcycle_models").select("*, motorcycle_brands(*)").order("name"),
       sb.from("maintenance_types").select("*").order("category").order("sort"),
       sb.from("terrain_types").select("*").order("sort"),
       sb.from("setup_recommendations").select("*").order("id"),
       sb.from("model_specs").select("*").order("id"),
+      sb.from("track_catalog").select("*").order("region").order("name"),
     ]);
     return {
       isAdmin: profile.is_admin,
@@ -35,6 +37,7 @@ export default function AdminPage() {
       terrains: must(terrains) as TerrainType[],
       recos: must(recos) as SetupRecommendation[],
       specs: must(specs) as ModelSpec[],
+      catalog: must(catalog) as CatalogTrack[],
     };
   });
 
@@ -54,12 +57,13 @@ export default function AdminPage() {
   return (
     <>
       <PageHeader title="Administration" back="/profil" />
-      <div className="mb-4 grid grid-cols-5 gap-1 rounded-2xl bg-surface-2 p-1">
+      <div className="mb-4 grid grid-cols-3 gap-1 rounded-2xl bg-surface-2 p-1">
         {([
           ["modeles", "Modèles"],
           ["fiches", "Fiches"],
           ["entretiens", "Entretiens"],
-          ["terrains", "Terrains"],
+          ["sols", "Types de sol"],
+          ["circuits", "Terrains"],
           ["conseils", "Conseils"],
         ] as [Tab, string][]).map(([value, label]) => (
           <button
@@ -82,7 +86,8 @@ export default function AdminPage() {
         />
       )}
       {tab === "entretiens" && <TypesAdmin types={data.types} reload={reload} />}
-      {tab === "terrains" && <TerrainsAdmin terrains={data.terrains} reload={reload} />}
+      {tab === "sols" && <TerrainsAdmin terrains={data.terrains} reload={reload} />}
+      {tab === "circuits" && <CatalogAdmin catalog={data.catalog} terrains={data.terrains} reload={reload} />}
       {tab === "conseils" && <RecosAdmin recos={data.recos} reload={reload} />}
     </>
   );

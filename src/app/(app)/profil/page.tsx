@@ -14,7 +14,7 @@ import type { Profile, RiderLevel } from "@/lib/types";
 const BACKUP_TABLES = [
   "motorcycles", "riding_sessions", "maintenance_records", "maintenance_schedules",
   "custom_reminders", "suspension_setups", "suspension_setup_revisions", "suspension_feedback",
-  "parts", "expenses", "attachments", "tracks", "track_posts",
+  "parts", "expenses", "attachments",
 ] as const;
 
 export default function ProfilPage() {
