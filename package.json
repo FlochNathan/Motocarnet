@@ -9,7 +9,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "seed:demo": "node --use-system-ca scripts/seed-demo.mjs",
-    "3d:export": "blender -b \"Image/moto3d.blend\" -P scripts/export-motocross.py",
+    "3d:export": "node scripts/export-motocross.mjs",
     "3d:optimize": "npx --yes @gltf-transform/cli optimize public/models/motocross.glb public/models/motocross.glb --texture-size 2048 --compress false"
   },
   "dependencies": {
