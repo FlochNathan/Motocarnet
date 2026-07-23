@@ -30,7 +30,7 @@ export function ProductPreview() {
       <Reveal>
         <SectionHeading eyebrow="Aperçu" title="Ton tableau de bord, en un coup d'œil" text="Un aperçu de démonstration — chiffres fictifs." />
       </Reveal>
-      <Reveal delay={100}>
+      <Reveal delay={100} variant="scale">
         <div className={`mt-10 ${cardCls} p-5 sm:p-8`}>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <Stat label="Heures moteur" value={PREVIEW.engineHours} />
@@ -72,10 +72,10 @@ export function MaintenanceSection() {
   return (
     <section id="fonctionnalites" className="mx-auto max-w-6xl px-5 py-20">
       <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
-        <Reveal>
+        <Reveal variant="left">
           <SectionHeading eyebrow="Entretien" title={MAINTENANCE.title} text={MAINTENANCE.text} />
         </Reveal>
-        <Reveal delay={100}>
+        <Reveal delay={100} variant="right">
           <ul className={`${cardCls} divide-y divide-white/10 p-2`}>
             {MAINTENANCE.timeline.map((item) => (
               <li key={item.label} className="flex items-center gap-4 px-4 py-4">
@@ -109,7 +109,7 @@ export function BudgetSection() {
   return (
     <section className="mx-auto max-w-6xl px-5 py-20">
       <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
-        <Reveal delay={100} className="order-2 lg:order-1">
+        <Reveal delay={100} variant="left" className="order-2 lg:order-1">
           <div className={`${cardCls} p-6 sm:p-8`}>
             <div className="mb-6 flex items-baseline justify-between">
               <span className="text-sm text-white/50">Total saison</span>
@@ -130,7 +130,7 @@ export function BudgetSection() {
             </ul>
           </div>
         </Reveal>
-        <Reveal className="order-1 lg:order-2">
+        <Reveal variant="right" className="order-1 lg:order-2">
           <SectionHeading eyebrow="Budget" title={BUDGET.title} text={BUDGET.text} />
         </Reveal>
       </div>
@@ -156,7 +156,7 @@ export function TimingSection() {
             ))}
           </div>
         </Reveal>
-        <Reveal delay={100}>
+        <Reveal delay={100} variant="right">
           <div className={`${cardCls} p-2`}>
             <ul className="divide-y divide-white/10">
               {TIMING.laps.map((lap) => {
@@ -190,7 +190,7 @@ export function HistorySection() {
       </Reveal>
       <ol className="mt-10 border-l border-white/10 pl-6">
         {HISTORY.events.map((e, i) => (
-          <Reveal as="li" key={i} delay={i * 60} className="relative pb-8 last:pb-0">
+          <Reveal as="li" key={i} delay={i * 60} variant="left" className="relative pb-8 last:pb-0">
             <span className="absolute -left-[1.65rem] top-1.5 h-3 w-3 rounded-full border-2" style={{ borderColor: accent, background: "#0b0b0d" }} aria-hidden />
             <p className="text-xs font-semibold uppercase tracking-wide text-white/40">{e.date}</p>
             <p className="mt-1 font-semibold text-white">{e.label}</p>
@@ -220,7 +220,7 @@ export function BenefitsSection() {
       </Reveal>
       <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {BENEFITS.map((b, i) => (
-          <Reveal key={b.title} delay={i * 80}>
+          <Reveal key={b.title} delay={i * 80} variant="scale">
             <div className={`group h-full ${cardCls} p-6 transition-transform duration-200 hover:-translate-y-1`}>
               <span className="flex h-11 w-11 items-center justify-center rounded-xl" style={{ background: `${accent}1a` }}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -243,7 +243,7 @@ export function BenefitsSection() {
 export function FinalCTA() {
   return (
     <section className="mx-auto max-w-6xl px-5 py-20">
-      <Reveal>
+      <Reveal variant="scale">
         <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.04] px-6 py-16 text-center sm:px-12">
           <div className="pointer-events-none absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 rounded-full blur-[100px]" style={{ background: `${accent}30` }} aria-hidden />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 mx-auto h-40 w-full max-w-md opacity-40" aria-hidden>
