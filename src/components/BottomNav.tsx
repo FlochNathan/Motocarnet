@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 const ITEMS = [
   {
-    href: "/",
+    href: "/accueil",
     label: "Accueil",
     icon: (
       <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5L12 3l9 7.5" /><path d="M5 9.5V21h14V9.5" /></svg>
@@ -82,7 +82,7 @@ export default function BottomNav() {
         <div className="mx-auto flex h-[4.25rem] max-w-lg items-stretch px-1">
           {ITEMS.map((item) => {
             const active =
-              item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+              item.href === "/accueil" ? pathname === "/accueil" : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}

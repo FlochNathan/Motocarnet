@@ -47,7 +47,7 @@ function ConnexionForm() {
       }
       return;
     }
-    router.push("/");
+    router.push("/accueil");
     router.refresh();
   }
 

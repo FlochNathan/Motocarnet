@@ -94,12 +94,12 @@ function SessionForm() {
     router.refresh();
   }
 
-  if (loading || !data) return (<><PageHeader title="Nouvelle session" back="/" /><Spinner /></>);
+  if (loading || !data) return (<><PageHeader title="Nouvelle session" back="/accueil" /><Spinner /></>);
 
   if (data.motos.length === 0) {
     return (
       <>
-        <PageHeader title="Nouvelle session" back="/" />
+        <PageHeader title="Nouvelle session" back="/accueil" />
         <Card>Ajoutez d'abord une moto dans le garage.</Card>
       </>
     );
@@ -107,7 +107,7 @@ function SessionForm() {
 
   return (
     <>
-      <PageHeader title="Nouvelle session" back="/" />
+      <PageHeader title="Nouvelle session" back="/accueil" />
       <Card className="flex flex-col gap-4">
         <Field label="Moto">
           <Select value={motoId} onChange={(e) => setMotoId(e.target.value)}>

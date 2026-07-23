@@ -31,7 +31,7 @@ export default function ReinitialiserPage() {
       setError("Le lien a peut-être expiré. Redemandez un e-mail de réinitialisation.");
       return;
     }
-    router.push("/");
+    router.push("/accueil");
     router.refresh();
   }
 

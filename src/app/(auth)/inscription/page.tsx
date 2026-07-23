@@ -43,7 +43,7 @@ export default function InscriptionPage() {
     }
     // Si la confirmation par e-mail est désactivée, la session est ouverte directement
     if (data.session) {
-      window.location.href = "/";
+      window.location.href = "/accueil";
       return;
     }
     setDone(true);

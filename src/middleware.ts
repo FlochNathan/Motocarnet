@@ -65,16 +65,23 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isPublic = PUBLIC_PATHS.some((p) => path.startsWith(p));
+  const isLanding = path === "/"; // page d'accueil marketing (publique)
+  const isPublic = isLanding || PUBLIC_PATHS.some((p) => path.startsWith(p));
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/connexion";
     return NextResponse.redirect(url);
   }
-  if (user && isPublic && !path.startsWith("/auth") && !path.startsWith("/reinitialiser")) {
+  if (user && isLanding) {
+    // Déjà connecté : on saute la landing pour aller au tableau de bord
     const url = request.nextUrl.clone();
-    url.pathname = "/";
+    url.pathname = "/accueil";
+    return NextResponse.redirect(url);
+  }
+  if (user && isPublic && !isLanding && !path.startsWith("/auth") && !path.startsWith("/reinitialiser")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/accueil";
     return NextResponse.redirect(url);
   }
 
@@ -82,5 +89,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|sw.js|icons|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  // Tout sauf les fichiers statiques et les modèles 3D
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|sw.js|icons|models|.*\\.(?:svg|png|jpg|jpeg|gif|webp|glb|gltf|hdr|ico)$).*)"],
 };
