@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 // est sur /accueil (voir middleware : les utilisateurs connectés y sont redirigés).
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#0b0b0d] text-white [color-scheme:dark]">
+    <div className="min-h-screen bg-[#f4f3f1] text-[#141414] [color-scheme:light]">
       <LandingNav />
       <main>
         <HomeHero />

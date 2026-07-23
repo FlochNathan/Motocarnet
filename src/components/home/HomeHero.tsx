@@ -71,24 +71,24 @@ export default function HomeHero() {
         </div>
 
         {/* Voiles pour la lisibilité du texte */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0b0b0d] via-[#0b0b0d]/70 to-transparent md:via-[#0b0b0d]/40" aria-hidden />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#0b0b0d] to-transparent" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#f4f3f1] via-[#f4f3f1]/70 to-transparent md:via-[#f4f3f1]/40" aria-hidden />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#f4f3f1] to-transparent" aria-hidden />
 
         {/* Contenu commercial */}
         <div className="relative mx-auto w-full max-w-6xl px-5" style={{ opacity: textFade }}>
           <div className="max-w-xl">
-            <span className={`inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/70 ${base}`} style={d(0)}>
+            <span className={`inline-flex items-center gap-2 rounded-full border border-black/[0.08] bg-black/[0.035] px-3 py-1 text-xs font-semibold text-black/60 ${base}`} style={d(0)}>
               <span className="h-1.5 w-1.5 rounded-full" style={{ background: BRAND.accent }} />
               {BRAND.name} — carnet numérique moto
             </span>
 
-            <h1 id="hero-title" className={`mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-6xl md:text-7xl ${base}`} style={d(80)}>
+            <h1 id="hero-title" className={`mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight text-[#141414] sm:text-6xl md:text-7xl ${base}`} style={d(80)}>
               {HERO.title[0]}
               <br />
-              <span style={{ color: BRAND.accent }}>{HERO.title[1]}</span>
+              <span style={{ color: "#a86400" }}>{HERO.title[1]}</span>
             </h1>
 
-            <p className={`mt-6 max-w-lg text-lg leading-relaxed text-white/70 ${base}`} style={d(160)}>{HERO.subtitle}</p>
+            <p className={`mt-6 max-w-lg text-lg leading-relaxed text-black/60 ${base}`} style={d(160)}>{HERO.subtitle}</p>
 
             <div className={`mt-8 flex flex-col gap-3 sm:flex-row ${base}`} style={d(240)}>
               <Link
@@ -100,20 +100,20 @@ export default function HomeHero() {
               </Link>
               <a
                 href={BRAND.links.features}
-                className="rounded-full border border-white/15 bg-white/5 px-7 py-4 text-center text-base font-semibold text-white backdrop-blur-sm transition-colors duration-200 hover:bg-white/10"
+                className="rounded-full border border-black/10 bg-black/[0.035] px-7 py-4 text-center text-base font-semibold text-[#141414] backdrop-blur-sm transition-colors duration-200 hover:bg-black/[0.05]"
               >
                 {HERO.secondaryCta}
               </a>
             </div>
 
-            <p className={`mt-4 flex items-center gap-2 text-sm text-white/50 ${base}`} style={d(300)}>
+            <p className={`mt-4 flex items-center gap-2 text-sm text-black/45 ${base}`} style={d(300)}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={BRAND.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
               {HERO.reassurance}
             </p>
 
             <ul className={`mt-8 flex flex-wrap gap-x-6 gap-y-2 ${base}`} style={d(360)}>
               {HERO.highlights.map((h) => (
-                <li key={h} className="flex items-center gap-2 text-sm font-medium text-white/70">
+                <li key={h} className="flex items-center gap-2 text-sm font-medium text-black/60">
                   <span className="h-1.5 w-1.5 rounded-full" style={{ background: BRAND.accent }} aria-hidden />
                   {h}
                 </li>
@@ -129,8 +129,8 @@ export default function HomeHero() {
         {/* Indicateur de défilement */}
         {!reduced && (
           <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2" style={{ opacity: textFade }} aria-hidden>
-            <div className="flex h-9 w-6 items-start justify-center rounded-full border border-white/25 p-1.5">
-              <span className="h-2 w-1 animate-bounce rounded-full bg-white/60" />
+            <div className="flex h-9 w-6 items-start justify-center rounded-full border border-black/15 p-1.5">
+              <span className="h-2 w-1 animate-bounce rounded-full bg-black/40" />
             </div>
           </div>
         )}
@@ -141,9 +141,9 @@ export default function HomeHero() {
 
 function FloatingCard({ className, label, value, accent }: { className?: string; label: string; value: string; accent?: boolean }) {
   return (
-    <div className={`absolute rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 backdrop-blur-md ${className ?? ""}`} aria-hidden>
-      <p className="text-[11px] font-medium uppercase tracking-wide text-white/50">{label}</p>
-      <p className="mt-0.5 text-lg font-bold" style={{ color: accent ? BRAND.accent : "#fff" }}>{value}</p>
+    <div className={`absolute rounded-2xl border border-black/[0.08] bg-white px-4 py-3 backdrop-blur-md ${className ?? ""}`} aria-hidden>
+      <p className="text-[11px] font-medium uppercase tracking-wide text-black/45">{label}</p>
+      <p className="mt-0.5 text-lg font-bold" style={{ color: accent ? "#a86400" : "#141414" }}>{value}</p>
     </div>
   );
 }

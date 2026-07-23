@@ -105,14 +105,14 @@ export default function MotocrossScene() {
       gl={{ antialias: true, powerPreference: "high-performance" }}
       style={{ width: "100%", height: "100%" }}
     >
-      <ambientLight intensity={0.55} />
-      <directionalLight position={[5, 7, 4]} intensity={1.8} color="#ffd7a0" castShadow shadow-mapSize={[1024, 1024]} />
-      <directionalLight position={[-6, 3, -4]} intensity={0.5} color="#88a0ff" />
-      <spotLight position={[0, 6, 6]} angle={0.5} penumbra={1} intensity={0.6} color="#ffb060" />
+      <ambientLight intensity={0.9} />
+      <directionalLight position={[5, 7, 4]} intensity={1.7} color="#fff0d8" castShadow shadow-mapSize={[1024, 1024]} />
+      <directionalLight position={[-6, 3, -4]} intensity={0.4} color="#dfe6ff" />
+      <spotLight position={[0, 6, 6]} angle={0.5} penumbra={1} intensity={0.35} color="#ffcf9a" />
       <Suspense fallback={null}>
         <Moto reducedMotion={reducedMotion} />
       </Suspense>
-      <ContactShadows position={[0, -0.01, 0]} opacity={0.55} scale={12} blur={2.6} far={4.5} />
+      <ContactShadows position={[0, -0.01, 0]} opacity={0.35} scale={12} blur={2.8} far={4.5} />
       <ResizeHandler />
     </Canvas>
   );

@@ -18,25 +18,25 @@ export default function LandingNav() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        compact ? "border-b border-white/10 bg-[#0b0b0d]/85 backdrop-blur-xl" : "border-b border-transparent"
+        compact ? "border-b border-black/[0.08] bg-[#f4f3f1]/85 backdrop-blur-xl" : "border-b border-transparent"
       }`}
     >
       <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4" aria-label="Navigation principale">
-        <Link href="/" className="text-lg font-extrabold tracking-tight text-white">
+        <Link href="/" className="text-lg font-extrabold tracking-tight text-[#141414]">
           M<span style={{ color: BRAND.accent }}>X</span>
-          <span className="ml-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.35em] text-white/50">Vision</span>
+          <span className="ml-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.35em] text-black/45">Vision</span>
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">
           {NAV_LINKS.map((l) => (
-            <a key={l.href} href={l.href} className="text-sm font-medium text-white/70 transition-colors hover:text-white">
+            <a key={l.href} href={l.href} className="text-sm font-medium text-black/60 transition-colors hover:text-[#141414]">
               {l.label}
             </a>
           ))}
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Link href={BRAND.links.login} className="text-sm font-semibold text-white/80 transition-colors hover:text-white">
+          <Link href={BRAND.links.login} className="text-sm font-semibold text-black/70 transition-colors hover:text-[#141414]">
             Connexion
           </Link>
           <Link
@@ -51,7 +51,7 @@ export default function LandingNav() {
         {/* Menu mobile */}
         <button
           type="button"
-          className="flex h-11 w-11 items-center justify-center rounded-xl text-white md:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-xl text-[#141414] md:hidden"
           aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((v) => !v)}
@@ -63,19 +63,19 @@ export default function LandingNav() {
       </nav>
 
       {menuOpen && (
-        <div className="border-t border-white/10 bg-[#0b0b0d] px-5 py-4 md:hidden">
+        <div className="border-t border-black/[0.08] bg-[#f4f3f1] px-5 py-4 md:hidden">
           <div className="flex flex-col gap-1">
             {NAV_LINKS.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
                 onClick={() => setMenuOpen(false)}
-                className="rounded-xl px-3 py-3 text-base font-medium text-white/80 hover:bg-white/5"
+                className="rounded-xl px-3 py-3 text-base font-medium text-black/70 hover:bg-black/[0.035]"
               >
                 {l.label}
               </a>
             ))}
-            <Link href={BRAND.links.login} onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-3 text-base font-medium text-white/80 hover:bg-white/5">
+            <Link href={BRAND.links.login} onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-3 text-base font-medium text-black/70 hover:bg-black/[0.035]">
               Connexion
             </Link>
             <Link
