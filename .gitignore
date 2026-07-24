@@ -7,3 +7,6 @@ out/
 *.tsbuildinfo
 next-env.d.ts
 .DS_Store
+
+# Fichiers Blender source (trop volumineux pour GitHub — gardés en local)
+Image/*.blend

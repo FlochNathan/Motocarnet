@@ -10,7 +10,7 @@
     "test:watch": "vitest",
     "seed:demo": "node --use-system-ca scripts/seed-demo.mjs",
     "3d:export": "node scripts/export-motocross.mjs",
-    "3d:optimize": "npx --yes @gltf-transform/cli optimize public/models/motocross.glb public/models/motocross.glb --texture-size 2048 --compress false"
+    "3d:optimize": "npx --yes @gltf-transform/cli optimize public/models/motocross.glb public/models/motocross.glb --texture-size 1024"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
