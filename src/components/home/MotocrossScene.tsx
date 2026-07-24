@@ -39,6 +39,14 @@ const SCENERY = {
   },
 }[SCENE];
 
+// Livrée orange KTM appliquée aux plastiques (ciblage par nom de pièce).
+// Ajustez la liste si une pièce est mal colorée (voir noms dans le modèle :
+// scar fb, FatBar, gas cap, Akrapovic, LowerFork, Swingarm, Pegs, Roue AV/AR).
+const LIVERY_COLOR = "#F7671E"; // orange KTM
+const LIVERY_RE = /scar|fatbar|gas|plate|plast|shroud|fender|body|cover|number|carena|coque|ktm/i;
+// Pièces à ne JAMAIS colorer (métal, pneus, échappement…)
+const LIVERY_EXCLUDE = /roue|wheel|pneu|tire|tyre|akrapo|exhaust|echapp|fork|fourche|swing|bras|peg|cale|chain|chaine|disc|frein|brake|spoke|rayon|engine|moteur|rim|jante|bolt|vis|metal|chrome/i;
+
 const smoothstep = (a: number, b: number, x: number) => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
   return t * t * (3 - 2 * t);
@@ -75,13 +83,25 @@ function Moto({ reducedMotion }: { reducedMotion: boolean }) {
     const scale = 3.4 / maxDim;
     root.position.set(-center.x, -box.min.y, -center.z);
     root.scale.setScalar(scale);
+    const livery = new THREE.Color(LIVERY_COLOR);
     root.traverse((obj) => {
       const mesh = obj as THREE.Mesh;
-      if (mesh.isMesh) {
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        const mat = mesh.material as THREE.MeshStandardMaterial | undefined;
-        if (mat && "envMapIntensity" in mat) mat.envMapIntensity = 1.15;
+      if (!mesh.isMesh) return;
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      const mat = mesh.material as THREE.MeshStandardMaterial | undefined;
+      if (!mat) return;
+      if ("envMapIntensity" in mat) mat.envMapIntensity = 1.15;
+      // Nom de la pièce (le nœud porte souvent le nom, pas le mesh)
+      const label = `${mesh.name} ${mesh.parent?.name ?? ""}`;
+      if (LIVERY_RE.test(label) && !LIVERY_EXCLUDE.test(label)) {
+        const m = mat.clone();
+        m.color = livery.clone();
+        m.vertexColors = false; // affiche l'orange à plat, sans multiplier
+        m.metalness = 0.2;
+        m.roughness = 0.45;
+        m.needsUpdate = true;
+        mesh.material = m;
       }
     });
 
