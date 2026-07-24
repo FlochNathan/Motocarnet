@@ -7,13 +7,36 @@
 // Chargée dynamiquement seulement si le GLB existe (voir Moto3DStage).
 // Respecte prefers-reduced-motion.
 
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useGLTF, ContactShadows, Environment, Lightformer, MeshReflectorMaterial } from "@react-three/drei";
+import { useGLTF, ContactShadows, Environment, Lightformer, Sky } from "@react-three/drei";
 import * as THREE from "three";
 import { scrollState } from "./scrollState";
+import { SCENE } from "@/lib/landing";
 
 const MODEL_URL = "/models/motocross.glb";
+
+// Palette du décor extérieur selon le lieu choisi (landing.ts → SCENE)
+const SCENERY = {
+  beach: {
+    ground: "#dccaa2", // sable
+    fog: "#e8e0cf",
+    sun: [12, 6, 6] as [number, number, number],
+    turbidity: 6,
+    rayleigh: 1.2,
+    sunLight: "#fff2d6",
+    fogFar: 55,
+  },
+  track: {
+    ground: "#7a5a40", // terre
+    fog: "#d9cdb8",
+    sun: [10, 5, 7] as [number, number, number],
+    turbidity: 9,
+    rayleigh: 1.6,
+    sunLight: "#ffe8c0",
+    fogFar: 50,
+  },
+}[SCENE];
 
 const smoothstep = (a: number, b: number, x: number) => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
@@ -141,58 +164,64 @@ function Moto({ reducedMotion }: { reducedMotion: boolean }) {
   return <group ref={group}><primitive object={root} /></group>;
 }
 
-function Floor() {
+// Sol extérieur (sable / terre) recevant l'ombre de la moto
+function Ground() {
   return (
-    <mesh rotation-x={-Math.PI / 2} position-y={0}>
-      <planeGeometry args={[40, 40]} />
-      <MeshReflectorMaterial
-        resolution={512}
-        blur={[400, 120]}
-        mixBlur={1}
-        mixStrength={12}
-        roughness={0.9}
-        depthScale={1}
-        minDepthThreshold={0.4}
-        maxDepthThreshold={1.4}
-        color="#eeece8"
-        metalness={0.35}
-        mirror={0.35}
-      />
+    <mesh rotation-x={-Math.PI / 2} position-y={0} receiveShadow>
+      <planeGeometry args={[400, 400]} />
+      <meshStandardMaterial color={SCENERY.ground} roughness={1} metalness={0} />
     </mesh>
   );
 }
 
 export default function MotocrossScene() {
   const reducedMotion = usePrefersReducedMotion();
-  const [reflective, setReflective] = useState(false);
-  useEffect(() => {
-    setReflective(window.matchMedia("(min-width: 1024px)").matches);
-  }, []);
 
   return (
     <Canvas
       shadows
-      dpr={[1, reflective ? 1.75 : 1.5]}
+      dpr={[1, 1.6]}
       camera={{ position: [4.8, 1.7, 6.2], fov: 40 }}
       gl={{ antialias: true, powerPreference: "high-performance" }}
       style={{ width: "100%", height: "100%" }}
     >
-      <ambientLight intensity={0.55} />
-      <directionalLight position={[5, 7, 4]} intensity={1.5} color="#fff0d8" castShadow shadow-mapSize={[1024, 1024]} />
+      {/* Brume atmosphérique : le sol se fond dans l'horizon */}
+      <fog attach="fog" args={[SCENERY.fog, 16, SCENERY.fogFar]} />
+
+      {/* Ciel réaliste procédural (aucun fichier externe) */}
+      <Sky sunPosition={SCENERY.sun} turbidity={SCENERY.turbidity} rayleigh={SCENERY.rayleigh} mieCoefficient={0.006} mieDirectionalG={0.85} />
+
+      <ambientLight intensity={0.5} />
+      {/* Soleil : aligné avec le ciel, projette une vraie ombre */}
+      <directionalLight
+        position={SCENERY.sun}
+        intensity={2.2}
+        color={SCENERY.sunLight}
+        castShadow
+        shadow-mapSize={[2048, 2048]}
+        shadow-camera-left={-6}
+        shadow-camera-right={6}
+        shadow-camera-top={6}
+        shadow-camera-bottom={-6}
+        shadow-camera-near={0.5}
+        shadow-camera-far={40}
+        shadow-bias={-0.0004}
+      />
       <RimLight />
 
       <Suspense fallback={null}>
         <Moto reducedMotion={reducedMotion} />
-        {reflective && <Floor />}
+        <Ground />
+        {/* Reflets métalliques (studio procédural, invisible en fond) */}
         <Environment resolution={256} frames={1}>
-          <Lightformer intensity={2.2} position={[0, 5, -6]} scale={[12, 4, 1]} color="#ffffff" />
-          <Lightformer intensity={1.3} position={[-6, 2, 3]} scale={[4, 4, 1]} color="#ffd9a0" />
+          <Lightformer intensity={2} position={[0, 5, -6]} scale={[12, 4, 1]} color="#ffffff" />
+          <Lightformer intensity={1.3} position={[-6, 2, 3]} scale={[4, 4, 1]} color="#ffe0b0" />
           <Lightformer intensity={1.0} position={[6, 1.5, 4]} scale={[4, 4, 1]} color="#cfe0ff" />
-          <Lightformer intensity={1.4} position={[0, 3, 6]} scale={[8, 2, 1]} color="#ffffff" />
         </Environment>
       </Suspense>
 
-      <ContactShadows position={[0, 0.001, 0]} opacity={0.32} scale={12} blur={2.8} far={4.5} />
+      {/* Ombre de contact douce en complément (ancrage) */}
+      <ContactShadows position={[0, 0.002, 0]} opacity={0.28} scale={10} blur={2.6} far={4} color="#3a2c15" />
       <ResizeHandler />
     </Canvas>
   );

@@ -19,6 +19,9 @@ export const BRAND = {
   },
 };
 
+// Décor 3D du hero : "beach" (plage, esprit Le Touquet) ou "track" (terrain de cross)
+export const SCENE: "beach" | "track" = "beach";
+
 export const NAV_LINKS = [
   { label: "Fonctionnalités", href: "#fonctionnalites" },
   { label: "Comment ça marche", href: "#comment" },
