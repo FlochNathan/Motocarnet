@@ -9,7 +9,8 @@
 
 import { Suspense, useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useGLTF, ContactShadows, Environment, Lightformer, Sky } from "@react-three/drei";
+import { useGLTF, ContactShadows, Environment, Lightformer, Sky, Sparkles } from "@react-three/drei";
+import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import * as THREE from "three";
 import { scrollState } from "./scrollState";
 import { SCENE } from "@/lib/landing";
@@ -19,13 +20,13 @@ const MODEL_URL = "/models/motocross.glb";
 // Palette du décor extérieur selon le lieu choisi (landing.ts → SCENE)
 const SCENERY = {
   beach: {
-    ground: "#dccaa2", // sable
-    fog: "#e8e0cf",
-    sun: [12, 6, 6] as [number, number, number],
-    turbidity: 6,
-    rayleigh: 1.2,
-    sunLight: "#fff2d6",
-    fogFar: 55,
+    ground: "#e0cfa6", // sable clair
+    fog: "#efe6d2",
+    sun: [16, 4, 9] as [number, number, number], // soleil bas → ombres longues, ambiance dorée
+    turbidity: 5,
+    rayleigh: 1.5,
+    sunLight: "#ffe6b3",
+    fogFar: 60,
   },
   track: {
     ground: "#7a5a40", // terre
@@ -212,6 +213,8 @@ export default function MotocrossScene() {
       <Suspense fallback={null}>
         <Moto reducedMotion={reducedMotion} />
         <Ground />
+        {/* Poussière en suspension qui capte la lumière */}
+        <Sparkles count={50} scale={[9, 4, 6]} position={[0, 1.6, 0]} size={2.2} speed={reducedMotion ? 0 : 0.25} opacity={0.5} color="#ffe0a8" />
         {/* Reflets métalliques (studio procédural, invisible en fond) */}
         <Environment resolution={256} frames={1}>
           <Lightformer intensity={2} position={[0, 5, -6]} scale={[12, 4, 1]} color="#ffffff" />
@@ -222,6 +225,13 @@ export default function MotocrossScene() {
 
       {/* Ombre de contact douce en complément (ancrage) */}
       <ContactShadows position={[0, 0.002, 0]} opacity={0.28} scale={10} blur={2.6} far={4} color="#3a2c15" />
+
+      {/* Étalonnage cinématique : halo lumineux + vignette */}
+      <EffectComposer>
+        <Bloom mipmapBlur intensity={0.7} luminanceThreshold={0.82} luminanceSmoothing={0.25} />
+        <Vignette eskil={false} offset={0.28} darkness={0.5} />
+      </EffectComposer>
+
       <ResizeHandler />
     </Canvas>
   );
