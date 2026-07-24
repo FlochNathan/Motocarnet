@@ -53,6 +53,8 @@ export default function HomeHero() {
 
   // Le texte s'efface doucement au fur et à mesure du défilement
   const textFade = reduced ? 1 : Math.max(0, 1 - progress * 1.6);
+  // La légende « vue éclatée » apparaît quand les pièces s'écartent
+  const captionOpacity = reduced ? 0 : Math.max(0, Math.min(1, (progress - 0.3) / 0.22)) * Math.max(0, Math.min(1, (0.98 - progress) / 0.1));
   const tall = reduced ? "" : "h-[200vh]"; // hauteur de défilement pour l'effet épinglé
 
   return (
@@ -125,6 +127,21 @@ export default function HomeHero() {
           <FloatingCard className="right-5 top-[18%] hidden lg:block" label="Heures moteur" value={PREVIEW.engineHours} />
           <FloatingCard className="bottom-[22%] right-[12%] hidden lg:block" label="Prochaine vidange" value={`dans ${PREVIEW.nextOil}`} accent />
         </div>
+
+        {/* Légende de la vue éclatée */}
+        {!reduced && (
+          <div
+            className="pointer-events-none absolute bottom-16 left-1/2 -translate-x-1/2 px-5 text-center"
+            style={{ opacity: captionOpacity }}
+            aria-hidden
+          >
+            <p className="text-xs font-semibold uppercase tracking-[0.25em]" style={{ color: "#a86400" }}>Anatomie complète</p>
+            <p className="mt-2 text-lg font-semibold text-[#141414] sm:text-xl">
+              Roues · Fourche · Échappement · Chaîne · Bras oscillant
+            </p>
+            <p className="mt-1 text-sm text-black/55">Chaque pièce suivie, entretenue, historisée.</p>
+          </div>
+        )}
 
         {/* Indicateur de défilement */}
         {!reduced && (
