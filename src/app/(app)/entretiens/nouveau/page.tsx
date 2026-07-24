@@ -173,7 +173,7 @@ function EntretienForm() {
           <button
             type="button"
             onClick={() => setShowDetails(true)}
-            className="min-h-11 self-start text-sm font-semibold text-accent"
+            className="min-h-11 self-start text-sm font-semibold text-accent-strong"
           >
             ＋ Ajouter des détails (pièces, coût, photo…)
           </button>

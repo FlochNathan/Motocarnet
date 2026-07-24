@@ -100,12 +100,12 @@ function ConnexionForm() {
           </Button>
         )}
         <div className="flex flex-col items-center gap-2 text-sm">
-          <Link href="/mot-de-passe-oublie" className="font-semibold text-accent">
+          <Link href="/mot-de-passe-oublie" className="font-semibold text-accent-strong">
             Mot de passe oublié ?
           </Link>
           <p className="text-ink-dim">
             Pas encore de compte ?{" "}
-            <Link href="/inscription" className="font-semibold text-accent">
+            <Link href="/inscription" className="font-semibold text-accent-strong">
               Créer un compte
             </Link>
           </p>

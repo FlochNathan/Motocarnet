@@ -2,7 +2,7 @@
 export default function Doodles() {
   return (
     <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-56 overflow-hidden" aria-hidden>
-      <svg className="absolute -left-6 top-2 text-accent/25" width="110" height="110" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+      <svg className="absolute -left-6 top-2 text-accent-strong/25" width="110" height="110" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
         <path d="M20 80 C 25 55, 40 35, 70 22" />
         <path d="M32 63 C 40 60, 46 54, 48 46 M32 63 C 24 62, 18 56, 16 48" />
         <path d="M44 47 C 52 44, 57 38, 59 30 M44 47 C 36 46, 30 40, 28 32" />
@@ -21,7 +21,7 @@ export default function Doodles() {
 export function HandUnderline({ className = "" }: { className?: string }) {
   return (
     <svg
-      className={`block text-accent ${className}`}
+      className={`block text-accent-strong ${className}`}
       width="190"
       height="14"
       viewBox="0 0 190 14"

@@ -88,7 +88,7 @@ export default function FicheMotoPage({ params }: { params: Promise<{ id: string
         title={motoLabel(moto)}
         back="/garage"
         action={
-          <Link href={`/garage/${moto.id}/modifier`} className="flex min-h-11 items-center rounded-xl px-3 font-semibold text-accent">
+          <Link href={`/garage/${moto.id}/modifier`} className="flex min-h-11 items-center rounded-xl px-3 font-semibold text-accent-strong">
             Modifier
           </Link>
         }
@@ -106,7 +106,7 @@ export default function FicheMotoPage({ params }: { params: Promise<{ id: string
         </div>
         <div className="flex items-center justify-between p-4">
           <div>
-            <p className="text-3xl font-black text-accent">{formatHours(moto.current_hours)}</p>
+            <p className="text-3xl font-black text-accent-strong">{formatHours(moto.current_hours)}</p>
             <p className="text-xs text-ink-dim">compteur total</p>
           </div>
           <div className="text-right text-sm">

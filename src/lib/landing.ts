@@ -112,6 +112,42 @@ export const BENEFITS = [
   { title: "Chronos et sessions", text: "Suis tes tours et retrouve les réglages de chaque sortie." },
 ];
 
+// Tarifs (indicatifs — le paiement n'est pas encore branché)
+export const PRICING = {
+  title: "Un prix simple, sans surprise",
+  text: "Commence gratuitement. Passe en Premium le jour où tu veux plus.",
+  note: "Sans engagement · Aucune carte requise pour le plan gratuit",
+  plans: [
+    {
+      name: "Gratuit",
+      price: "0 €",
+      period: "",
+      featured: false,
+      cta: "Créer mon garage",
+      features: [
+        "1 moto",
+        "Suivi des entretiens & rappels",
+        "Heures moteur & sessions",
+        "3 réglages de suspensions",
+      ],
+    },
+    {
+      name: "Premium",
+      price: "3,99 €",
+      period: "/ mois",
+      featured: true,
+      cta: "Commencer",
+      features: [
+        "Motos illimitées",
+        "Budget & statistiques avancées",
+        "Réglages & chronos illimités",
+        "Rapport PDF de revente",
+        "Historique complet & export",
+      ],
+    },
+  ],
+};
+
 export const FINAL_CTA = {
   title: "Ta moto mérite mieux qu'un carnet oublié.",
   text: "Crée ton garage numérique et commence à suivre ta moto dès aujourd'hui.",
@@ -131,9 +167,9 @@ export const FOOTER = {
     {
       title: "Assistance",
       links: [
-        { label: "Contact", href: "mailto:contact@example.com" }, // lien temporaire
-        { label: "Conditions", href: "#" }, // page à créer
-        { label: "Confidentialité", href: "#" }, // page à créer
+        { label: "Contact", href: "mailto:contact@mxvision.app" }, // à remplacer par votre e-mail réel
+        { label: "Conditions", href: "/cgu" },
+        { label: "Confidentialité", href: "/confidentialite" },
       ],
     },
   ],

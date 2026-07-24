@@ -57,7 +57,7 @@ export default function InscriptionPage() {
         <p className="mt-2 text-sm text-ink-dim">
           Un lien de confirmation a été envoyé à <strong>{email}</strong>. Cliquez dessus pour activer votre compte, puis connectez-vous.
         </p>
-        <Link href="/connexion" className="mt-4 inline-block font-semibold text-accent">
+        <Link href="/connexion" className="mt-4 inline-block font-semibold text-accent-strong">
           Retour à la connexion
         </Link>
       </Card>
@@ -82,7 +82,7 @@ export default function InscriptionPage() {
         </Button>
         <p className="text-center text-sm text-ink-dim">
           Déjà un compte ?{" "}
-          <Link href="/connexion" className="font-semibold text-accent">
+          <Link href="/connexion" className="font-semibold text-accent-strong">
             Se connecter
           </Link>
         </p>

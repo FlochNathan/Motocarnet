@@ -151,7 +151,7 @@ export default function HistoriquePage({ params }: { params: Promise<{ id: strin
                 {e.details.map((d, j) => (
                   <p key={j} className="truncate text-xs text-ink-dim">{d}</p>
                 ))}
-                {e.cost !== null && <p className="mt-0.5 text-sm font-bold text-accent">{formatEuro(e.cost)}</p>}
+                {e.cost !== null && <p className="mt-0.5 text-sm font-bold text-accent-strong">{formatEuro(e.cost)}</p>}
               </div>
             </Card>
           ))}

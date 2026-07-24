@@ -306,7 +306,7 @@ function EditForm({
       </div>
 
       {!showAdvanced ? (
-        <button type="button" onClick={() => setShowAdvanced(true)} className="self-start text-sm font-semibold text-accent">
+        <button type="button" onClick={() => setShowAdvanced(true)} className="self-start text-sm font-semibold text-accent-strong">
           ⚙️ Seuil d'alerte personnalisé (avancé)
         </button>
       ) : (

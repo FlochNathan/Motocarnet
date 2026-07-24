@@ -10,3 +10,7 @@ next-env.d.ts
 
 # Fichiers Blender source (trop volumineux pour GitHub — gardés en local)
 Image/*.blend
+Image/*.psd
+Image/*.psb
+Image/*.tif
+Image/*.tiff

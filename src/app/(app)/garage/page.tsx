@@ -63,7 +63,7 @@ function MotoCard({ moto }: { moto: MotorcycleWithModel }) {
           <p className="truncate font-extrabold">{motoLabel(moto)}</p>
           <p className="text-xs text-ink-dim">{motoSpec(moto)}</p>
           <div className="mt-1.5 flex items-center gap-2">
-            <span className="text-lg font-black text-accent">{formatHours(moto.current_hours)}</span>
+            <span className="text-lg font-black text-accent-strong">{formatHours(moto.current_hours)}</span>
             <Badge className={statusCls}>{MOTO_STATUS_LABELS[moto.status]}</Badge>
             {moto.is_primary && <Badge>Principale</Badge>}
           </div>

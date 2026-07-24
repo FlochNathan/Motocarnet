@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 type CookieToSet = { name: string; value: string; options?: CookieOptions };
 
-const PUBLIC_PATHS = ["/connexion", "/inscription", "/mot-de-passe-oublie", "/reinitialiser", "/auth"];
+const PUBLIC_PATHS = ["/connexion", "/inscription", "/mot-de-passe-oublie", "/reinitialiser", "/auth", "/cgu", "/confidentialite"];
 
 /** Configuration Supabase absente ou non remplie (.env.local) */
 function supabaseNotConfigured(): boolean {
@@ -66,7 +66,9 @@ export async function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
   const isLanding = path === "/"; // page d'accueil marketing (publique)
-  const isPublic = isLanding || PUBLIC_PATHS.some((p) => path.startsWith(p));
+  // Pages consultables par tous, connecté ou non (pas de redirection)
+  const isNeutral = path.startsWith("/auth") || path.startsWith("/reinitialiser") || path.startsWith("/cgu") || path.startsWith("/confidentialite");
+  const isPublic = isLanding || isNeutral || PUBLIC_PATHS.some((p) => path.startsWith(p));
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
@@ -79,7 +81,8 @@ export async function middleware(request: NextRequest) {
     url.pathname = "/accueil";
     return NextResponse.redirect(url);
   }
-  if (user && isPublic && !isLanding && !path.startsWith("/auth") && !path.startsWith("/reinitialiser")) {
+  if (user && isPublic && !isLanding && !isNeutral) {
+    // Connecté sur une page d'authentification → tableau de bord
     const url = request.nextUrl.clone();
     url.pathname = "/accueil";
     return NextResponse.redirect(url);

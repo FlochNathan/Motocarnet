@@ -187,7 +187,7 @@ export default function AccueilPage() {
               }}
               className="text-left"
             >
-              <span className="text-4xl font-bold tracking-tight text-accent">{formatHours(primary.current_hours)}</span>
+              <span className="text-4xl font-bold tracking-tight text-accent-strong">{formatHours(primary.current_hours)}</span>
               <span className="mt-1 block text-[13px] text-white/40">compteur moteur · modifier</span>
             </button>
             {lastSession && (
@@ -204,7 +204,7 @@ export default function AccueilPage() {
       <section className="mt-10">
         <div className="mb-3 flex items-baseline justify-between">
           <h2 className="text-[13px] font-semibold uppercase tracking-wide text-ink-dim">À prévoir</h2>
-          <Link href="/entretiens" className="text-[13px] font-semibold text-accent">Tout voir</Link>
+          <Link href="/entretiens" className="text-[13px] font-semibold text-accent-strong">Tout voir</Link>
         </div>
         {urgent.length === 0 ? (
           <p className="text-[15px] text-ink-dim">Tout est à jour.</p>
@@ -323,7 +323,7 @@ function Greeting({ name }: { name: string }) {
           {initial}
         </Link>
       </div>
-      <p className="text-sm font-semibold uppercase tracking-[0.14em] text-accent">Bonjour</p>
+      <p className="text-sm font-semibold uppercase tracking-[0.14em] text-accent-strong">Bonjour</p>
       <h1 className="mt-1 text-[2.1rem] font-extrabold leading-[1.1] tracking-tight">{name}</h1>
     </header>
   );

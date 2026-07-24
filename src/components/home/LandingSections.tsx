@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BRAND, BUDGET, BENEFITS, FINAL_CTA, FOOTER, HISTORY, MAINTENANCE, PREVIEW, TIMING } from "@/lib/landing";
+import { BRAND, BUDGET, BENEFITS, FINAL_CTA, FOOTER, HISTORY, MAINTENANCE, PREVIEW, PRICING, TIMING } from "@/lib/landing";
 import Reveal from "./Reveal";
 import ThreeFallback from "./ThreeFallback";
 
@@ -215,7 +215,7 @@ const BENEFIT_ICONS = [
 
 export function BenefitsSection() {
   return (
-    <section id="tarifs" className="mx-auto max-w-6xl px-5 py-20">
+    <section id="avantages" className="mx-auto max-w-6xl px-5 py-20">
       <Reveal>
         <SectionHeading eyebrow="Avantages" title="Pensé pour les pilotes exigeants" />
       </Reveal>
@@ -234,6 +234,64 @@ export function BenefitsSection() {
           </Reveal>
         ))}
       </div>
+    </section>
+  );
+}
+
+// ------------------------------------------------------------
+// Tarifs
+// ------------------------------------------------------------
+export function PricingSection() {
+  return (
+    <section id="tarifs" className="mx-auto max-w-5xl px-5 py-20">
+      <Reveal>
+        <div className="text-center">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: accentText }}>Tarifs</p>
+          <h2 className="text-3xl font-bold tracking-tight text-[#141414] sm:text-4xl">{PRICING.title}</h2>
+          <p className="mx-auto mt-4 max-w-xl text-lg text-black/55">{PRICING.text}</p>
+        </div>
+      </Reveal>
+      <div className="mx-auto mt-10 grid max-w-3xl grid-cols-1 gap-5 sm:grid-cols-2">
+        {PRICING.plans.map((plan, i) => (
+          <Reveal key={plan.name} delay={i * 100} variant="scale">
+            <div
+              className={`relative flex h-full flex-col rounded-3xl border p-7 ${
+                plan.featured ? "border-transparent bg-white shadow-[0_10px_40px_rgba(245,166,35,0.18)]" : "border-black/[0.08] bg-white shadow-[0_2px_24px_rgba(0,0,0,0.04)]"
+              }`}
+              style={plan.featured ? { boxShadow: `0 0 0 2px ${accent}, 0 12px 40px rgba(245,166,35,0.18)` } : undefined}
+            >
+              {plan.featured && (
+                <span className="absolute -top-3 left-7 rounded-full px-3 py-1 text-xs font-bold text-black" style={{ background: accent }}>
+                  Recommandé
+                </span>
+              )}
+              <p className="text-sm font-semibold uppercase tracking-wide text-black/50">{plan.name}</p>
+              <p className="mt-3 flex items-baseline gap-1">
+                <span className="text-4xl font-extrabold tracking-tight text-[#141414]">{plan.price}</span>
+                {plan.period && <span className="text-sm text-black/45">{plan.period}</span>}
+              </p>
+              <ul className="mt-6 flex flex-1 flex-col gap-3">
+                {plan.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2.5 text-sm text-black/70">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={accentText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0"><path d="M20 6L9 17l-5-5" /></svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href={BRAND.links.signup}
+                className={`mt-7 rounded-full px-6 py-3.5 text-center text-base font-semibold transition-transform duration-200 hover:scale-[1.02] ${
+                  plan.featured ? "text-black" : "border border-black/10 text-[#141414] hover:bg-black/[0.04]"
+                }`}
+                style={plan.featured ? { background: accent } : undefined}
+              >
+                {plan.cta}
+              </Link>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+      <p className="mt-6 text-center text-sm text-black/45">{PRICING.note}</p>
     </section>
   );
 }

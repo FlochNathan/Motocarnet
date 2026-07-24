@@ -3,7 +3,7 @@ import LandingNav from "@/components/home/LandingNav";
 import HomeHero from "@/components/home/HomeHero";
 import {
   ProductPreview, MaintenanceSection, BudgetSection, TimingSection,
-  HistorySection, BenefitsSection, FinalCTA, HomeFooter,
+  HistorySection, BenefitsSection, PricingSection, FinalCTA, HomeFooter,
 } from "@/components/home/LandingSections";
 
 export const metadata: Metadata = {
@@ -38,6 +38,7 @@ export default function LandingPage() {
         <TimingSection />
         <HistorySection />
         <BenefitsSection />
+        <PricingSection />
         <FinalCTA />
       </main>
       <HomeFooter />

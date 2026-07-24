@@ -190,7 +190,7 @@ export default function TerrainsPage() {
 
       <p className="mt-6 text-center text-xs text-ink-dim">
         Un terrain manque ?{" "}
-        <Link href="/admin" className="font-semibold text-accent">Ajoutez-le dans l&apos;administration</Link>.
+        <Link href="/admin" className="font-semibold text-accent-strong">Ajoutez-le dans l&apos;administration</Link>.
       </p>
     </>
   );

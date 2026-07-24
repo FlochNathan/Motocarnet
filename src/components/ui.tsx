@@ -194,7 +194,7 @@ export function Stars({ value, onChange, label }: { value: number | null; onChan
           onClick={() => onChange?.(i)}
           aria-label={`${i} sur 5`}
           className={`text-[1.375rem] leading-none ${onChange ? "flex h-11 w-10 items-center justify-center" : ""} ${
-            value !== null && i <= value ? "text-accent drop-shadow-[0_1px_2px_rgb(244_101_12/0.4)]" : "text-ink-dim/25"
+            value !== null && i <= value ? "text-accent-strong drop-shadow-[0_1px_2px_rgb(244_101_12/0.4)]" : "text-ink-dim/25"
           }`}
         >
           ★

@@ -101,8 +101,8 @@ function Comparer() {
                       {r.label}
                       {r.unit && <span className="text-xs"> ({r.unit})</span>}
                     </td>
-                    <td className={`px-3 py-2 ${differs ? "font-black text-accent" : "font-semibold"}`}>{r.a}</td>
-                    <td className={`px-3 py-2 ${differs ? "font-black text-accent" : "font-semibold"}`}>{r.b}</td>
+                    <td className={`px-3 py-2 ${differs ? "font-black text-accent-strong" : "font-semibold"}`}>{r.a}</td>
+                    <td className={`px-3 py-2 ${differs ? "font-black text-accent-strong" : "font-semibold"}`}>{r.b}</td>
                   </tr>
                 );
               })}

@@ -222,7 +222,7 @@ function RemindersSection({
       <div className="mb-2 flex items-center justify-between">
         <h2 className="text-lg font-bold">Mes rappels</h2>
         {!showForm && (
-          <button onClick={() => setShowForm(true)} className="min-h-11 px-2 text-sm font-semibold text-accent">
+          <button onClick={() => setShowForm(true)} className="min-h-11 px-2 text-sm font-semibold text-accent-strong">
             ＋ Ajouter un rappel
           </button>
         )}

@@ -127,7 +127,7 @@ export default function ReglagePage({ params }: { params: Promise<{ id: string }
       .map(({ f, v }) => (
         <div key={f.key} className="flex items-baseline justify-between gap-3 py-1.5">
           <dt className="text-sm text-ink-dim">{f.label}</dt>
-          <dd className="whitespace-nowrap text-base font-black text-accent">
+          <dd className="whitespace-nowrap text-base font-black text-accent-strong">
             {String(v)} <span className="text-xs font-semibold text-ink-dim">{f.unit}</span>
           </dd>
         </div>
@@ -183,7 +183,7 @@ export default function ReglagePage({ params }: { params: Promise<{ id: string }
           {setup.fork_spring_rate && (
             <div className="flex items-baseline justify-between gap-3 py-1.5">
               <dt className="text-sm text-ink-dim">Ressort</dt>
-              <dd className="font-black text-accent">{setup.fork_spring_rate}</dd>
+              <dd className="font-black text-accent-strong">{setup.fork_spring_rate}</dd>
             </div>
           )}
         </dl>
@@ -196,7 +196,7 @@ export default function ReglagePage({ params }: { params: Promise<{ id: string }
           {setup.shock_spring_rate && (
             <div className="flex items-baseline justify-between gap-3 py-1.5">
               <dt className="text-sm text-ink-dim">Ressort</dt>
-              <dd className="font-black text-accent">{setup.shock_spring_rate}</dd>
+              <dd className="font-black text-accent-strong">{setup.shock_spring_rate}</dd>
             </div>
           )}
         </dl>

@@ -35,7 +35,7 @@ export default function MotDePasseOubliePage() {
         <p className="mt-2 text-sm text-ink-dim">
           Si un compte existe pour <strong>{email}</strong>, vous recevrez un lien pour réinitialiser votre mot de passe.
         </p>
-        <Link href="/connexion" className="mt-4 inline-block font-semibold text-accent">
+        <Link href="/connexion" className="mt-4 inline-block font-semibold text-accent-strong">
           Retour à la connexion
         </Link>
       </Card>
@@ -55,7 +55,7 @@ export default function MotDePasseOubliePage() {
         <Button type="submit" disabled={busy}>
           {busy ? "Envoi…" : "Envoyer le lien"}
         </Button>
-        <Link href="/connexion" className="text-center text-sm font-semibold text-accent">
+        <Link href="/connexion" className="text-center text-sm font-semibold text-accent-strong">
           Retour à la connexion
         </Link>
       </form>
